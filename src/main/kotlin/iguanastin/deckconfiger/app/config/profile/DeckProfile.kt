@@ -1,9 +1,27 @@
 package iguanastin.deckconfiger.app.config.profile
 
+import javafx.beans.property.SimpleStringProperty
 import org.json.JSONObject
 
 // TODO better color/pattern data type?
-class DeckProfile(var name: String, var color: String, var pattern: String? = null) {
+class DeckProfile(name: String, color: String, pattern: String? = null) {
+
+
+    val nameProperty = SimpleStringProperty(name)
+    var name: String
+        get() = nameProperty.get()
+        set(value) = nameProperty.set(value)
+
+    val colorProperty = SimpleStringProperty(color)
+    var color: String
+        get() = colorProperty.get()
+        set(value) = colorProperty.set(value)
+
+    val patternProperty = SimpleStringProperty(pattern)
+    var pattern: String
+        get() = patternProperty.get()
+        set(value) = patternProperty.set(value)
+
 
     fun toJSON(): JSONObject {
         return JSONObject().apply {
@@ -13,9 +31,13 @@ class DeckProfile(var name: String, var color: String, var pattern: String? = nu
         }
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     companion object {
         fun fromJSON(json: JSONObject): DeckProfile {
-            return DeckProfile(json.getString("name"), json.getString("color"), if (json.has("pattern")) json.getString("pattern") else null)
+            return DeckProfile(json.getString("name"), json.getString("color"), json.optString("pattern"))
         }
     }
 

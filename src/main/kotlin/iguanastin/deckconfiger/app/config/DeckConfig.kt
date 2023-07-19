@@ -4,6 +4,7 @@ import iguanastin.deckconfiger.app.config.hardware.HardwareDefinition
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import org.json.JSONArray
 import org.json.JSONObject
+import tornadofx.*
 import java.io.File
 import java.nio.file.Files
 
@@ -11,7 +12,7 @@ class DeckConfig {
 
     var hardware: HardwareDefinition = HardwareDefinition()
 
-    val profiles = mutableListOf<DeckProfile>()
+    val profiles = observableListOf<DeckProfile>()
 
 
     fun toJSON(): JSONObject {

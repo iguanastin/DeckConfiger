@@ -53,23 +53,13 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
         }
 
         center = stackpane {
-            scrollpane(fitToWidth = true, fitToHeight = true) {
-                isPannable = true
-
-                content = pane {
-                    myApp.deckConfigProperty.addListener { _ ->
-                        children.clear()
-                        // TODO
-                    }
-                }
+            configeditor {
+                deckConfigProperty.bind(myApp.deckConfigProperty)
             }
 
             vbox(10.0) {
                 hiddenWhen(myApp.deckConfigProperty.isNotNull)
                 alignment = Pos.CENTER
-                label("Nothing open, yet") {
-                    addClass(Styles.noConfigWarning)
-                }
                 hyperlink("Import") {
                     onAction = EventHandler { event ->
                         event.consume()
@@ -82,8 +72,8 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                 isPickOnBounds = false
                 button("Apply") {
                     anchorpaneConstraints {
-                        rightAnchor = 25
-                        bottomAnchor = 25
+                        rightAnchor = 10
+                        bottomAnchor = 10
                     }
                     enableWhen(myApp.unsavedChangesProperty)
                     onAction = EventHandler { event ->
