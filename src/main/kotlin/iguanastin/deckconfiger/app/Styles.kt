@@ -1,6 +1,7 @@
 package iguanastin.deckconfiger.app
 
 import javafx.scene.Cursor
+import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
@@ -9,6 +10,7 @@ class Styles : Stylesheet() {
         val heading by cssclass()
         val component by cssclass()
         val draggable by cssclass()
+        val redBG by cssclass()
 
         val baseColor = c("#3b3f42")
     }
@@ -32,6 +34,10 @@ class Styles : Stylesheet() {
         }
         component and draggable and hover {
             cursor = Cursor.MOVE
+        }
+
+        redBG {
+            backgroundColor += Color.RED
         }
     }
 }

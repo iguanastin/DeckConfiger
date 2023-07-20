@@ -18,7 +18,7 @@ class DeckProfile(name: String, color: String = "white", pattern: String? = null
         set(value) = colorProperty.set(value)
 
     val patternProperty = SimpleStringProperty(pattern)
-    var pattern: String
+    var pattern: String?
         get() = patternProperty.get()
         set(value) = patternProperty.set(value)
 
