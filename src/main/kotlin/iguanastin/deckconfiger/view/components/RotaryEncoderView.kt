@@ -1,4 +1,4 @@
-package iguanastin.deckconfiger.view
+package iguanastin.deckconfiger.view.components
 
 import iguanastin.deckconfiger.app.config.hardware.RotaryEncoder
 import javafx.scene.paint.Color

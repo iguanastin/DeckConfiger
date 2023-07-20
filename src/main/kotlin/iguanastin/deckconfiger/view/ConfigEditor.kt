@@ -6,6 +6,9 @@ import iguanastin.deckconfiger.app.config.hardware.LEDLight
 import iguanastin.deckconfiger.app.config.hardware.PushButton
 import iguanastin.deckconfiger.app.config.hardware.RotaryEncoder
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
+import iguanastin.deckconfiger.view.components.LEDLightView
+import iguanastin.deckconfiger.view.components.PushButtonView
+import iguanastin.deckconfiger.view.components.RotaryEncoderView
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
