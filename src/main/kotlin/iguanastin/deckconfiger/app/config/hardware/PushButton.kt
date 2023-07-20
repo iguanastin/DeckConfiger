@@ -4,14 +4,26 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import org.json.JSONObject
 
-class PushButton(primaryPin: Int, detectPress: DetectPress = DetectPress.LOW, debounceInterval: Int = 5): HardwareInput(primaryPin) {
+class PushButton(
+    primaryPin: Int,
+    x: Int,
+    y: Int,
+    detectPress: DetectPress = DetectPress.LOW,
+    debounceInterval: Int = 5
+) : HardwareInput(primaryPin, x, y) {
 
     enum class DetectPress {
         LOW,
         HIGH
     }
 
-    constructor(json: JSONObject): this(json.getInt("pin"), DetectPress.valueOf(json.getString("detect")), json.getInt("debounce"))
+    constructor(json: JSONObject) : this(
+        json.getInt("pin"),
+        json.getInt("x"),
+        json.getInt("y"),
+        DetectPress.valueOf(json.getString("detect").uppercase()),
+        json.getInt("debounce")
+    )
 
     companion object {
         const val type = "pushbutton"

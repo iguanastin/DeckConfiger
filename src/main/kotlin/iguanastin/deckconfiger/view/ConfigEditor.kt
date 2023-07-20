@@ -2,12 +2,14 @@ package iguanastin.deckconfiger.view
 
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.hardware.HardwareComponent
+import iguanastin.deckconfiger.app.config.hardware.LEDLight
+import iguanastin.deckconfiger.app.config.hardware.PushButton
+import iguanastin.deckconfiger.app.config.hardware.RotaryEncoder
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.event.EventTarget
+import javafx.event.EventHandler
 import javafx.scene.Node
-import javafx.scene.control.Label
 import javafx.scene.layout.StackPane
 import tornadofx.*
 
@@ -40,16 +42,43 @@ class ConfigEditor : StackPane() {
             isFitToHeight = true
             isPannable = true
 
-            content = pane {
-                var componentsListener: ListConversionListener<HardwareComponent, Node>? = null
+            content = borderpane {
+                padding = insets(50)
 
-                deckConfigProperty.addListener { _, oldDeck, newDeck ->
-                    oldDeck?.hardware?.components?.removeListener(componentsListener)
-                    children.clear()
-                    if (newDeck == null) return@addListener
+                center = group {
+                    var componentsListener: ListConversionListener<HardwareComponent, Node>? = null
 
-                    componentsListener = children.bind(newDeck.hardware.components) {
-                        Label(it.type) // TODO not working and not exactly what I wanted either
+                    deckConfigProperty.addListener { _, oldDeck, newDeck ->
+                        oldDeck?.hardware?.components?.removeListener(componentsListener)
+                        children.clear()
+                        if (newDeck == null) return@addListener
+
+                        componentsListener = children.bind(newDeck.hardware.components) {
+                            val view = when (it) {
+                                is LEDLight -> LEDLightView(it)
+                                is PushButton -> PushButtonView(it)
+                                is RotaryEncoder -> RotaryEncoderView(it)
+                                else -> throw IllegalArgumentException("Invalid type: $it")
+                            }
+
+                            view.draggableProperty.bind(editHardwareProperty)
+
+                            view
+                        }
+                    }
+                }
+
+                contextmenu {
+                    item("No Actions...") {
+                        isDisable = true
+                        visibleWhen(editHardwareProperty.not()) // DO NOT invert this because the warning is flat out wrong. Will hide the whole content pane
+                    }
+                    item("New Component") {
+                        visibleWhen(editHardwareProperty)
+                        onAction = EventHandler { event ->
+                            event.consume()
+                            // TODO
+                        }
                     }
                 }
             }
@@ -57,6 +86,7 @@ class ConfigEditor : StackPane() {
 
         anchorpane {
             isPickOnBounds = false
+            enableWhen(deckConfigProperty.isNotNull)
 
             // Toggle hardware editing button
             togglebutton {
@@ -64,37 +94,40 @@ class ConfigEditor : StackPane() {
                     leftAnchor = 10
                     bottomAnchor = 10
                 }
-                enableWhen(deckConfigProperty.isNotNull)
                 textProperty().bind(selectedProperty().map { if (it) "Lock Hardware" else "Unlock Hardware" })
                 selectedProperty().bindBidirectional(editHardwareProperty)
             }
 
-            // Profile chooser
-            choicebox<DeckProfile> {
+            hbox(5.0) {
                 anchorpaneConstraints {
                     leftAnchor = 10
                     topAnchor = 10
                 }
-                enableWhen(deckConfigProperty.isNotNull)
 
-                var profilesListener: ListConversionListener<DeckProfile, DeckProfile>? = null
-                deckConfigProperty.addListener { _, old, new ->
-                    old?.profiles?.removeListener(profilesListener)
-                    items.clear()
-                    if (new == null) return@addListener
+                // Profile chooser
+                choicebox<DeckProfile> {
+                    var profilesListener: ListConversionListener<DeckProfile, DeckProfile>? = null
+                    deckConfigProperty.addListener { _, old, new ->
+                        old?.profiles?.removeListener(profilesListener)
+                        items.clear()
+                        if (new == null) return@addListener
 
-                    profilesListener = items.bind(new.profiles) {
-                        it
+                        profilesListener = items.bind(new.profiles) {
+                            it
+                        }
+                        value = items.firstOrNull()
                     }
-                    value = items.firstOrNull()
-                }
 
-                valueProperty().bindBidirectional(profileProperty)
+                    valueProperty().bindBidirectional(profileProperty)
+                }
+                button("+") {
+                    onAction = EventHandler { event ->
+                        event.consume()
+                        // TODO create new profile
+                    }
+                }
             }
         }
     }
 
 }
-
-
-fun EventTarget.configeditor(op: ConfigEditor.() -> Unit = {}) = opcr(this, ConfigEditor(), op)

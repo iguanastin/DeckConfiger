@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleStringProperty
 import org.json.JSONObject
 
 // TODO better color/pattern data type?
-class DeckProfile(name: String, color: String, pattern: String? = null) {
+class DeckProfile(name: String, color: String = "white", pattern: String? = null) {
 
 
     val nameProperty = SimpleStringProperty(name)

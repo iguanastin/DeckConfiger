@@ -3,9 +3,9 @@ package iguanastin.deckconfiger.app.config.hardware
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-class RotaryEncoder(primaryPin: Int, secondaryPin: Int): HardwareInput(primaryPin) {
+class RotaryEncoder(primaryPin: Int, x: Int, y: Int, secondaryPin: Int): HardwareInput(primaryPin, x, y) {
 
-    constructor(json: JSONObject): this(json.getInt("pin"), json.getInt("pin2"))
+    constructor(json: JSONObject): this(json.getInt("pin"), json.getInt("x"), json.getInt("y"), json.getInt("pin2"))
 
     companion object {
         const val type = "rotaryencoder"

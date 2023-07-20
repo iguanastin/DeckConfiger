@@ -22,11 +22,10 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
     override val root = borderpane {
         top = menubar {
             menu("File") {
-                item("Apply") {
-                    enableWhen(myApp.deckConfigProperty.isNotNull)
+                item("New empty config") {
                     onAction = EventHandler { event ->
                         event.consume()
-                        // TODO
+                        myApp.createNewConfig()
                     }
                 }
                 item("Export to File") {
@@ -64,21 +63,6 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     onAction = EventHandler { event ->
                         event.consume()
                         importFileDialog()
-                    }
-                }
-            }
-
-            anchorpane {
-                isPickOnBounds = false
-                button("Apply") {
-                    anchorpaneConstraints {
-                        rightAnchor = 10
-                        bottomAnchor = 10
-                    }
-                    enableWhen(myApp.unsavedChangesProperty)
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        // TODO
                     }
                 }
             }

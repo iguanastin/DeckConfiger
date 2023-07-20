@@ -1,6 +1,7 @@
 package iguanastin.deckconfiger.app
 
 import iguanastin.deckconfiger.app.config.DeckConfig
+import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.view.MainView
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.ReadOnlyObjectProperty
@@ -53,6 +54,12 @@ class MyApp: App(MainView::class, Styles::class) {
     fun saveConfigToFile(file: File) {
         val json = deckConfig?.toJSON() ?: return
         Files.writeString(file.toPath(), json.toString())
+    }
+
+    fun createNewConfig() {
+        deckConfig = DeckConfig().apply {
+            profiles.add(DeckProfile("Profile 1"))
+        }
     }
 
 }
