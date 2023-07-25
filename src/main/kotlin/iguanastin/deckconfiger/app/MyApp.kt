@@ -108,4 +108,9 @@ class MyApp : App(MainView::class, Styles::class) {
         serial.sendMessage(SerialMessage.Type.REQUEST_CONFIG)
     }
 
+    override fun stop() {
+        serial.close()
+        super.stop()
+    }
+
 }

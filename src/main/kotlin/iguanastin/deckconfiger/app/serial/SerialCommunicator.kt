@@ -23,28 +23,20 @@ class SerialCommunicator(private val port: SerialPort) {
         if (!port.openPort()) {
             close()
         } else {
-//            port.addDataListener(object : SerialPortMessageListener {
+//            port.addDataListener(object : SerialPortDataListener {
 //                override fun getListeningEvents(): Int {
-//                    TODO("Not yet implemented")
+//                    return SerialPort.LISTENING_EVENT_DATA_RECEIVED
 //                }
 //
 //                override fun serialEvent(p0: SerialPortEvent?) {
-//                    TODO("Not yet implemented")
-//                }
-//
-//                override fun getMessageDelimiter(): ByteArray {
-//                    TODO("Not yet implemented")
-//                }
-//
-//                override fun delimiterIndicatesEndOfMessage(): Boolean {
-//                    TODO("Not yet implemented")
+//                    println(p0?.receivedData?.joinToString(", "))
 //                }
 //            })
 
             thread(isDaemon = true, name = "SerialCommunicator") {
                 while (!closed) {
                     val one = ByteArray(1)
-                    if (port.readBytes(one, 1) == -1) continue
+                    if (port.readBytes(one, 1) < 1) continue
                     val read = one[0]
                     if (read == SERIAL_MESSAGE_START.toByte()) {
                         val msg = readMessage()
@@ -92,6 +84,7 @@ class SerialCommunicator(private val port: SerialPort) {
     }
 
     fun close() {
+        closed = true
         port.closePort()
     }
 
