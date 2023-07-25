@@ -56,14 +56,11 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                 deckConfigProperty.bind(myApp.deckConfigProperty)
             }
 
-            vbox(10.0) {
+            hyperlink("Import") {
                 hiddenWhen(myApp.deckConfigProperty.isNotNull)
-                alignment = Pos.CENTER
-                hyperlink("Import") {
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        importFileDialog()
-                    }
+                onAction = EventHandler { event ->
+                    event.consume()
+                    importFileDialog()
                 }
             }
         }

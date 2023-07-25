@@ -1,6 +1,6 @@
 package iguanastin.deckconfiger.view
 
-import iguanastin.deckconfiger.app.Styles
+import iguanastin.deckconfiger.app.addIfNotContains
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.hardware.HardwareComponent
 import iguanastin.deckconfiger.app.config.hardware.LEDLight
@@ -10,17 +10,17 @@ import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.view.components.LEDLightView
 import iguanastin.deckconfiger.view.components.PushButtonView
 import iguanastin.deckconfiger.view.components.RotaryEncoderView
+import iguanastin.deckconfiger.view.dialog.LEDLightDialog
+import iguanastin.deckconfiger.view.dialog.ProfileDialog
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.Node
 import javafx.scene.control.ButtonType
-import javafx.scene.control.Dialog
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuItem
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
-import javafx.stage.Modality
-import javafx.util.Callback
 import tornadofx.*
 
 class ConfigEditor : StackPane() {
@@ -77,7 +77,12 @@ class ConfigEditor : StackPane() {
                                     enableWhen(editHardwareProperty)
                                     onAction = EventHandler { event ->
                                         event.consume()
-                                        // TODO
+                                        when (it) {
+                                            is LEDLight -> LEDLightDialog(it, scene.window).showAndWait()
+                                            is PushButton -> TODO()
+                                            is RotaryEncoder -> TODO()
+                                            else -> throw IllegalArgumentException("Invalid type: $it")
+                                        }
                                     }
                                 }
                                 item("Delete") {
@@ -102,14 +107,31 @@ class ConfigEditor : StackPane() {
                     }
                 }
 
-                contextmenu {
-                    item("New Component") {
-                        enableWhen(editHardwareProperty)
-                        onAction = EventHandler { event ->
-                            event.consume()
-                            // TODO
-                        }
-                    }
+                val cm = ContextMenu(
+                    Menu("New Component",
+                        null,
+                        MenuItem("Button").apply {
+                            onAction = EventHandler { event ->
+                                event.consume()
+                                // TODO
+                            }
+                        },
+                        MenuItem("Encoder").apply {
+                            onAction = EventHandler { event ->
+                                event.consume()
+                                // TODO
+                            }
+                        },
+                        MenuItem("LED Light").apply {
+                            onAction = EventHandler { event ->
+                                event.consume()
+                                LEDLightDialog(window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+                            }
+                        })
+                )
+                contextMenu = null
+                editHardwareProperty.addListener { _, _, new ->
+                    contextMenu = if (new) cm else null
                 }
             }
         }
@@ -189,66 +211,7 @@ class ConfigEditor : StackPane() {
     }
 
     private fun profileDialog(profile: DeckProfile? = null): DeckProfile? {
-        Dialog<DeckProfile>().apply {
-            initModality(Modality.WINDOW_MODAL)
-            initOwner(scene.window)
-            title = if (profile == null) "New Profile" else "Edit Profile"
-
-            val nameField = textfield {
-                promptText = "Profile name"
-                if (profile != null) text = profile.name
-            }
-            val colorField = textfield {
-                promptText = "Profile Color"
-                if (profile != null) text = profile.color
-            }
-            val patternField = textfield {
-                promptText = "N/A"
-                if (profile != null) text = profile.pattern
-            }
-
-            dialogPane.apply {
-                this.graphic = vbox(10) {
-                    hbox(5) {
-                        label("Name")
-                        add(nameField)
-                    }
-                    hbox(5) {
-                        label("Color")
-                        add(colorField)
-                    }
-                    hbox(5) {
-                        label("Pattern")
-                        add(patternField)
-                    }
-                }
-                buttonTypes.add(ButtonType.APPLY)
-                lookupButton(ButtonType.APPLY).addEventFilter(ActionEvent.ACTION) { event ->
-                    if (nameField.text.isBlank() || deckConfig?.profiles?.map { it.name }?.contains(nameField.text.trim()) == true) {
-                        event.consume()
-                        nameField.addClass(Styles.redBG)
-                    }
-                }
-            }
-
-            resultConverter = Callback {
-                if (it != ButtonType.APPLY) return@Callback null
-
-                var result = profile
-                if (result == null) {
-                    result = DeckProfile(nameField.text, colorField.text, patternField.text)
-                } else {
-                    result.name = nameField.text
-                    result.color = colorField.text
-                    result.pattern = patternField.text
-                    if (result.pattern?.isBlank() == true) result.pattern = null
-                }
-
-                return@Callback result
-            }
-
-            return showAndWait().orElse(null)
-        }
+        return ProfileDialog(profile, scene.window).showAndWait().orElse(null)
     }
 
 }

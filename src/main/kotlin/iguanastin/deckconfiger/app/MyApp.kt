@@ -2,19 +2,18 @@ package iguanastin.deckconfiger.app
 
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
+import iguanastin.deckconfiger.app.serial.SerialCommunicator
+import iguanastin.deckconfiger.app.serial.SerialMessage
 import iguanastin.deckconfiger.view.MainView
-import javafx.beans.property.ObjectProperty
-import javafx.beans.property.ReadOnlyObjectProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.stage.Stage
+import org.json.JSONObject
 import tornadofx.App
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.OpenOption
-import kotlin.concurrent.thread
 
-class MyApp: App(MainView::class, Styles::class) {
+class MyApp : App(MainView::class, Styles::class) {
 
     companion object {
         const val version = "0.0.1"
@@ -36,11 +35,27 @@ class MyApp: App(MainView::class, Styles::class) {
         get() = unsavedChangesProperty.get()
         set(value) = unsavedChangesProperty.set(value)
 
+    val serial = SerialCommunicator()
+
+
+    init {
+        serial.messageHandler = { msg: SerialMessage ->
+            if (msg.type == SerialMessage.Type.REQUEST_IDENTIFY) SerialMessage(
+                SerialMessage.Type.RESPOND_IDENTIFY, msg.id, "USBDeck Config Editor ($version): ${System.getProperty("os")}".toByteArray(
+                    Charsets.US_ASCII
+                )
+            )
+            else if (msg.type == SerialMessage.Type.RESPOND_CONFIG) {
+                deckConfig = DeckConfig.fromJSON(JSONObject(msg.bytesToString(Charsets.UTF_8)))
+            }
+
+            null
+        }
+    }
+
 
     override fun start(stage: Stage) {
         super.start(stage)
-
-        // TODO connect on serial port
 
         stage.width = 800.0
         stage.height = 600.0
