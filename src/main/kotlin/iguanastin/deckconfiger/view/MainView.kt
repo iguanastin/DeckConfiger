@@ -28,6 +28,20 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                         myApp.createNewConfig()
                     }
                 }
+                item("Sync to Device") {
+                    enableWhen(myApp.deckConfigProperty.isNotNull)
+                    onAction = EventHandler { event ->
+                        event.consume()
+                        myApp.syncToDevice()
+                    }
+                }
+                item("Sync from Device") {
+                    enableWhen(myApp.deckConfigProperty.isNotNull)
+                    onAction = EventHandler { event ->
+                        event.consume()
+                        myApp.syncFromDevice()
+                    }
+                }
                 item("Export to File") {
                     enableWhen(myApp.deckConfigProperty.isNotNull)
                     onAction = EventHandler { event ->

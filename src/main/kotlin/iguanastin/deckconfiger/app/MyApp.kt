@@ -1,15 +1,17 @@
 package iguanastin.deckconfiger.app
 
+import com.fazecast.jSerialComm.SerialPort
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.app.serial.SerialCommunicator
 import iguanastin.deckconfiger.app.serial.SerialMessage
 import iguanastin.deckconfiger.view.MainView
+import iguanastin.deckconfiger.view.runOnUIThread
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.stage.Stage
 import org.json.JSONObject
-import tornadofx.App
+import tornadofx.*
 import java.io.File
 import java.nio.file.Files
 
@@ -35,27 +37,43 @@ class MyApp : App(MainView::class, Styles::class) {
         get() = unsavedChangesProperty.get()
         set(value) = unsavedChangesProperty.set(value)
 
-    val serial = SerialCommunicator()
+    val serial =
+        SerialCommunicator(SerialPort.getCommPorts().single { it.portDescription == "Serial/Keyboard/Mouse/Joystick" })
 
 
     init {
         serial.messageHandler = { msg: SerialMessage ->
-            if (msg.type == SerialMessage.Type.REQUEST_IDENTIFY) SerialMessage(
-                SerialMessage.Type.RESPOND_IDENTIFY, msg.id, "USBDeck Config Editor ($version): ${System.getProperty("os")}".toByteArray(
-                    Charsets.US_ASCII
+            when (msg.type) {
+                SerialMessage.Type.REQUEST_IDENTIFY -> SerialMessage(
+                    SerialMessage.Type.RESPOND_IDENTIFY,
+                    msg.id,
+                    "USBDeck Config Editor ($version): ${System.getProperty("os")}".toByteArray(
+                        Charsets.US_ASCII
+                    )
                 )
-            )
-            else if (msg.type == SerialMessage.Type.RESPOND_CONFIG) {
-                deckConfig = DeckConfig.fromJSON(JSONObject(msg.bytesToString(Charsets.UTF_8)))
+                SerialMessage.Type.RESPOND_CONFIG -> {
+                    val str = msg.bytesToString(Charsets.US_ASCII)
+                    runOnUIThread { deckConfig = if (str.isNotBlank()) DeckConfig.fromJSON(JSONObject(str)) else DeckConfig() }
+                    null
+                }
+                SerialMessage.Type.RESPOND_ERROR -> {
+                    println("SERIAL ERROR MESSAGE: " + msg.bytesToString(Charsets.US_ASCII))
+                    null
+                }
+                SerialMessage.Type.RESPOND_OK -> {
+                    println("Respond OK")
+                    null
+                }
+                else -> null
             }
-
-            null
         }
     }
 
 
     override fun start(stage: Stage) {
         super.start(stage)
+
+        serial.sendMessage(SerialMessage.Type.REQUEST_CONFIG)
 
         stage.width = 800.0
         stage.height = 600.0
@@ -75,6 +93,19 @@ class MyApp : App(MainView::class, Styles::class) {
         deckConfig = DeckConfig().apply {
             profiles.add(DeckProfile("Profile 1"))
         }
+    }
+
+    fun syncToDevice(): Boolean {
+        val jsonString = deckConfig?.toJSON()?.toString() ?: return false
+        val bytes = jsonString.toByteArray(Charsets.US_ASCII)
+
+        serial.sendMessage(SerialMessage.Type.CHANGE_CONFIG, bytes)
+
+        return true
+    }
+
+    fun syncFromDevice() {
+        serial.sendMessage(SerialMessage.Type.REQUEST_CONFIG)
     }
 
 }
