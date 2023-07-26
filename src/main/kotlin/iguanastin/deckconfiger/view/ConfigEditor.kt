@@ -10,6 +10,8 @@ import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.view.components.LEDLightView
 import iguanastin.deckconfiger.view.components.PushButtonView
 import iguanastin.deckconfiger.view.components.RotaryEncoderView
+import iguanastin.deckconfiger.view.dialog.ButtonDialog
+import iguanastin.deckconfiger.view.dialog.EncoderDialog
 import iguanastin.deckconfiger.view.dialog.LEDLightDialog
 import iguanastin.deckconfiger.view.dialog.ProfileDialog
 import javafx.beans.property.SimpleBooleanProperty
@@ -77,11 +79,13 @@ class ConfigEditor : StackPane() {
                                     enableWhen(editHardwareProperty)
                                     onAction = EventHandler { event ->
                                         event.consume()
-                                        when (it) {
-                                            is LEDLight -> LEDLightDialog(it, scene.window).showAndWait()
-                                            is Button -> TODO()
-                                            is Encoder -> TODO()
-                                            else -> throw IllegalArgumentException("Invalid type: $it")
+                                        runLater {
+                                            when (it) {
+                                                is LEDLight -> LEDLightDialog(it, scene.window).show()
+                                                is Button -> ButtonDialog(it, scene.window).show()
+                                                is Encoder -> EncoderDialog(it, scene.window).show()
+                                                else -> throw IllegalArgumentException("Invalid type: $it")
+                                            }
                                         }
                                     }
                                 }
@@ -113,13 +117,13 @@ class ConfigEditor : StackPane() {
                         MenuItem("Button").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                // TODO
+                                ButtonDialog(window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
                             }
                         },
                         MenuItem("Encoder").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                // TODO
+                                EncoderDialog(window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
                             }
                         },
                         MenuItem("LED Light").apply {

@@ -7,8 +7,8 @@ class Button(
     primaryPin: Int,
     x: Int,
     y: Int,
-    detectPress: Int = 0,
-    debounceInterval: Int = 5
+    detectPress: Int = defaultDetect,
+    debounceInterval: Int = defaultDebounce
 ) : HardwareInput(primaryPin, x, y) {
 
     constructor(json: JSONObject) : this(
@@ -21,6 +21,8 @@ class Button(
 
     companion object {
         const val type = "button"
+        const val defaultDebounce = 5
+        const val defaultDetect = 0
     }
 
     val detectPressProperty = SimpleIntegerProperty(detectPress)

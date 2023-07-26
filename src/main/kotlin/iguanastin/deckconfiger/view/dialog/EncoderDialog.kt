@@ -1,7 +1,7 @@
 package iguanastin.deckconfiger.view.dialog
 
 import iguanastin.deckconfiger.app.Styles
-import iguanastin.deckconfiger.app.config.hardware.LEDLight
+import iguanastin.deckconfiger.app.config.hardware.Encoder
 import javafx.event.ActionEvent
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TextFormatter
@@ -9,14 +9,25 @@ import javafx.stage.Window
 import javafx.util.Callback
 import tornadofx.*
 
-class LEDLightDialog(led: LEDLight? = null, window: Window? = null) : GenericEditDialog<LEDLight>(window) {
+class EncoderDialog(encoder: Encoder? = null, window: Window? = null) : GenericEditDialog<Encoder>(window) {
 
     init {
-        title = if (led == null) "New LED Light" else "Edit LED Light"
+        title = if (encoder == null) "New Encoder" else "Edit Encoder"
 
-        val pinField = textfield {
-            promptText = "Pin"
-            if (led != null) text = led.primaryPin.toString()
+        val pin1Field = textfield {
+            promptText = "Pin1"
+            text = encoder?.primaryPin?.toString()
+            textFormatter = TextFormatter<String> {
+                if (it.controlNewText.matches("[0-9]*".toRegex())) {
+                    it
+                } else {
+                    null
+                }
+            }
+        }
+        val pin2Field = textfield {
+            promptText = "Pin2"
+            text = encoder?.secondaryPin?.toString()
             textFormatter = TextFormatter<String> {
                 if (it.controlNewText.matches("[0-9]*".toRegex())) {
                     it
@@ -27,7 +38,7 @@ class LEDLightDialog(led: LEDLight? = null, window: Window? = null) : GenericEdi
         }
         val xField = textfield {
             promptText = "X"
-            if (led != null) text = led.x.toString()
+            text = encoder?.x?.toString() ?: "0"
             textFormatter = TextFormatter<String> {
                 if (it.controlNewText.matches("-?[0-9]*".toRegex())) {
                     it
@@ -38,7 +49,7 @@ class LEDLightDialog(led: LEDLight? = null, window: Window? = null) : GenericEdi
         }
         val yField = textfield {
             promptText = "Y"
-            if (led != null) text = led.y.toString()
+            text = encoder?.y?.toString() ?: "0"
             textFormatter = TextFormatter<String> {
                 if (it.controlNewText.matches("-?[0-9]*".toRegex())) {
                     it
@@ -49,8 +60,12 @@ class LEDLightDialog(led: LEDLight? = null, window: Window? = null) : GenericEdi
         }
 
         vbox.add(hbox(5) {
-            label("Pin")
-            add(pinField)
+            label("Pin1")
+            add(pin1Field)
+        })
+        vbox.add(hbox(5) {
+            label("Pin2")
+            add(pin2Field)
         })
         vbox.add(hbox(5) {
             label("X")
@@ -62,19 +77,27 @@ class LEDLightDialog(led: LEDLight? = null, window: Window? = null) : GenericEdi
         })
 
         dialogPane.lookupButton(ButtonType.APPLY).addEventFilter(ActionEvent.ACTION) { event ->
-            if (pinField.text.isBlank()) {
+            if (pin1Field.text.isBlank()) {
                 event.consume()
-                pinField.addClass(Styles.redBG)
+                pin1Field.addClass(Styles.redBG)
+            }
+            if (pin2Field.text.isBlank()) {
+                event.consume()
+                pin2Field.addClass(Styles.redBG)
             }
         }
 
         resultConverter = Callback {
             if (it != ButtonType.APPLY) return@Callback null
 
-            val result = led ?: LEDLight(0, 0, 0)
-            result.primaryPin = pinField.text.toInt()
-            result.x = xField.text.toIntOrNull() ?: 0
-            result.y = yField.text.toIntOrNull() ?: 0
+            val result = encoder ?: Encoder(0, 0, 0, 0)
+
+            result.apply {
+                primaryPin = pin1Field.text.toInt()
+                secondaryPin = pin2Field.text.toInt()
+                x = xField.text.toIntOrNull() ?: 0
+                y = yField.text.toIntOrNull() ?: 0
+            }
 
             return@Callback result
         }
