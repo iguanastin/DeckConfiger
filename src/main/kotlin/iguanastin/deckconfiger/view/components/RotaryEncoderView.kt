@@ -1,10 +1,10 @@
 package iguanastin.deckconfiger.view.components
 
-import iguanastin.deckconfiger.app.config.hardware.RotaryEncoder
+import iguanastin.deckconfiger.app.config.hardware.Encoder
 import javafx.scene.paint.Color
 import tornadofx.*
 
-class RotaryEncoderView(encoder: RotaryEncoder) : HardwareComponentView(encoder) {
+class RotaryEncoderView(encoder: Encoder) : HardwareComponentView(encoder) {
 
     init {
         top = label("Encoder Dial")

@@ -21,8 +21,8 @@ class HardwareDefinition {
         private const val jsonComponentsName = "components"
 
         private val componentJsonFactories: Map<String, (JSONObject) -> HardwareComponent> = mapOf(
-            Pair(PushButton.type) { json -> PushButton(json) },
-            Pair(RotaryEncoder.type) { json -> RotaryEncoder(json) },
+            Pair(Button.type) { json -> Button(json) },
+            Pair(Encoder.type) { json -> Encoder(json) },
             Pair(LEDLight.type) { json -> LEDLight(json) }
         )
 

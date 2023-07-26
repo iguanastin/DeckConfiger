@@ -4,8 +4,8 @@ import iguanastin.deckconfiger.app.addIfNotContains
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.hardware.HardwareComponent
 import iguanastin.deckconfiger.app.config.hardware.LEDLight
-import iguanastin.deckconfiger.app.config.hardware.PushButton
-import iguanastin.deckconfiger.app.config.hardware.RotaryEncoder
+import iguanastin.deckconfiger.app.config.hardware.Button
+import iguanastin.deckconfiger.app.config.hardware.Encoder
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.view.components.LEDLightView
 import iguanastin.deckconfiger.view.components.PushButtonView
@@ -66,8 +66,8 @@ class ConfigEditor : StackPane() {
                         componentsListener = children.bind(newDeck.hardware.components) {
                             val view = when (it) {
                                 is LEDLight -> LEDLightView(it)
-                                is PushButton -> PushButtonView(it)
-                                is RotaryEncoder -> RotaryEncoderView(it)
+                                is Button -> PushButtonView(it)
+                                is Encoder -> RotaryEncoderView(it)
                                 else -> throw IllegalArgumentException("Invalid type: $it")
                             }
 
@@ -79,8 +79,8 @@ class ConfigEditor : StackPane() {
                                         event.consume()
                                         when (it) {
                                             is LEDLight -> LEDLightDialog(it, scene.window).showAndWait()
-                                            is PushButton -> TODO()
-                                            is RotaryEncoder -> TODO()
+                                            is Button -> TODO()
+                                            is Encoder -> TODO()
                                             else -> throw IllegalArgumentException("Invalid type: $it")
                                         }
                                     }
