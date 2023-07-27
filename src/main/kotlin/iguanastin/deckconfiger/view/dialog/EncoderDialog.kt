@@ -36,28 +36,6 @@ class EncoderDialog(encoder: Encoder? = null, window: Window? = null) : GenericE
                 }
             }
         }
-        val xField = textfield {
-            promptText = "X"
-            text = encoder?.x?.toString() ?: "0"
-            textFormatter = TextFormatter<String> {
-                if (it.controlNewText.matches("-?[0-9]*".toRegex())) {
-                    it
-                } else {
-                    null
-                }
-            }
-        }
-        val yField = textfield {
-            promptText = "Y"
-            text = encoder?.y?.toString() ?: "0"
-            textFormatter = TextFormatter<String> {
-                if (it.controlNewText.matches("-?[0-9]*".toRegex())) {
-                    it
-                } else {
-                    null
-                }
-            }
-        }
 
         vbox.add(hbox(5) {
             label("Pin1")
@@ -66,14 +44,6 @@ class EncoderDialog(encoder: Encoder? = null, window: Window? = null) : GenericE
         vbox.add(hbox(5) {
             label("Pin2")
             add(pin2Field)
-        })
-        vbox.add(hbox(5) {
-            label("X")
-            add(xField)
-        })
-        vbox.add(hbox(5) {
-            label("Y")
-            add(yField)
         })
 
         dialogPane.lookupButton(ButtonType.APPLY).addEventFilter(ActionEvent.ACTION) { event ->
@@ -95,8 +65,6 @@ class EncoderDialog(encoder: Encoder? = null, window: Window? = null) : GenericE
             result.apply {
                 primaryPin = pin1Field.text.toInt()
                 secondaryPin = pin2Field.text.toInt()
-                x = xField.text.toIntOrNull() ?: 0
-                y = yField.text.toIntOrNull() ?: 0
             }
 
             return@Callback result

@@ -151,16 +151,6 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
             isPickOnBounds = false
             enableWhen(deckConfigProperty.isNotNull)
 
-            // Toggle hardware editing button
-            togglebutton {
-                anchorpaneConstraints {
-                    leftAnchor = 10
-                    bottomAnchor = 10
-                }
-                textProperty().bind(selectedProperty().map { if (it) "Lock Hardware" else "Unlock Hardware" })
-                selectedProperty().bindBidirectional(editHardwareProperty)
-            }
-
             hbox(5.0) {
                 anchorpaneConstraints {
                     leftAnchor = 10

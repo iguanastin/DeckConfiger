@@ -1,13 +1,10 @@
 package iguanastin.deckconfiger.view
 
 import iguanastin.deckconfiger.app.MyApp
-import iguanastin.deckconfiger.app.Styles
 import iguanastin.deckconfiger.app.config.DeckConfig
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Pos
-import javafx.scene.layout.Priority
-import javafx.scene.paint.Color
 import javafx.stage.FileChooser
 import tornadofx.*
 
@@ -19,10 +16,14 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
 
     private val myApp = (app as MyApp)
 
+    private val editor = configeditor(myApp) {
+        deckConfigProperty.bind(myApp.deckConfigProperty)
+    }
+
     override val root = borderpane {
         top = menubar {
             menu("File") {
-                item("New empty config") {
+                item("New blank config") {
                     onAction = EventHandler { event ->
                         event.consume()
                         myApp.createNewConfig()
@@ -55,6 +56,12 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                         importFileDialog()
                     }
                 }
+                item("Close") {
+                    onAction = EventHandler { event ->
+                        event.consume()
+                        myApp.deckConfig = null
+                    }
+                }
                 separator()
                 item("Exit") {
                     onAction = EventHandler { event ->
@@ -63,18 +70,30 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     }
                 }
             }
+            menu("Edit") {
+                checkmenuitem("Edit Hardware") {
+                    selectedProperty().bindBidirectional(editor.editHardwareProperty)
+                }
+            }
         }
 
         center = stackpane {
-            configeditor(myApp) {
-                deckConfigProperty.bind(myApp.deckConfigProperty)
-            }
+            add(editor)
 
-            hyperlink("Import") {
+            vbox(10) {
+                alignment = Pos.CENTER
                 hiddenWhen(myApp.deckConfigProperty.isNotNull)
-                onAction = EventHandler { event ->
-                    event.consume()
-                    importFileDialog()
+                hyperlink("Import from file") {
+                    onAction = EventHandler { event ->
+                        event.consume()
+                        importFileDialog()
+                    }
+                }
+                hyperlink("New blank config") {
+                    onAction = EventHandler { event ->
+                        event.consume()
+                        myApp.createNewConfig()
+                    }
                 }
             }
         }

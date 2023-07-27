@@ -26,28 +26,6 @@ class ButtonDialog(button: Button? = null, window: Window? = null) : GenericEdit
                 }
             }
         }
-        val xField = textfield {
-            promptText = "X"
-            text = button?.x?.toString() ?: "0"
-            textFormatter = TextFormatter<String> {
-                if (it.controlNewText.matches("-?[0-9]*".toRegex())) {
-                    it
-                } else {
-                    null
-                }
-            }
-        }
-        val yField = textfield {
-            promptText = "Y"
-            text = button?.y?.toString() ?: "0"
-            textFormatter = TextFormatter<String> {
-                if (it.controlNewText.matches("-?[0-9]*".toRegex())) {
-                    it
-                } else {
-                    null
-                }
-            }
-        }
         val debounceField = textfield {
             promptText = "Debounce (millis)"
             text = button?.debounceInterval?.toString() ?: "5"
@@ -85,14 +63,6 @@ class ButtonDialog(button: Button? = null, window: Window? = null) : GenericEdit
             label("Detect")
             add(detectField)
         })
-        vbox.add(hbox(5) {
-            label("X")
-            add(xField)
-        })
-        vbox.add(hbox(5) {
-            label("Y")
-            add(yField)
-        })
 
         dialogPane.lookupButton(ButtonType.APPLY).addEventFilter(ActionEvent.ACTION) { event ->
             if (pinField.text.isBlank()) {
@@ -108,8 +78,6 @@ class ButtonDialog(button: Button? = null, window: Window? = null) : GenericEdit
 
             result.apply {
                 primaryPin = pinField.text.toInt()
-                x = xField.text.toIntOrNull() ?: 0
-                y = yField.text.toIntOrNull() ?: 0
                 debounceInterval = debounceField.text.toIntOrNull() ?: Button.defaultDebounce
                 detectPress = detectField.value ?: Button.defaultDetect
             }

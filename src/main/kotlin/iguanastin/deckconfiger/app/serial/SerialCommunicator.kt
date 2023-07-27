@@ -23,18 +23,14 @@ class SerialCommunicator(private val port: SerialPort) {
         if (!port.openPort()) {
             close()
         } else {
-//            port.addDataListener(object : SerialPortDataListener {
-//                override fun getListeningEvents(): Int {
-//                    return SerialPort.LISTENING_EVENT_DATA_RECEIVED
-//                }
-//
-//                override fun serialEvent(p0: SerialPortEvent?) {
-//                    println(p0?.receivedData?.joinToString(", "))
-//                }
-//            })
-
-            thread(isDaemon = true, name = "SerialCommunicator") {
+            thread(isDaemon = true, name = "Serial Read") {
                 while (!closed) {
+                    if (port.lastErrorCode != 0) {
+                        Thread.sleep(500)
+                        port.closePort()
+                        port.openPort()
+                    }
+
                     val one = ByteArray(1)
                     if (port.readBytes(one, 1) < 1) continue
                     val read = one[0]
@@ -68,6 +64,11 @@ class SerialCommunicator(private val port: SerialPort) {
         bytes: ByteArray? = null,
         id: Int = rollingRequestID++.toInt()
     ): Int {
+        if (port.lastErrorCode != 0) {
+            port.closePort()
+            port.openPort()
+        }
+
         val write = ByteArray(7 + (bytes?.size ?: 0))
         write[0] = SERIAL_MESSAGE_START.toByte()
         write[1] = type.ordinal.toByte()
@@ -76,7 +77,7 @@ class SerialCommunicator(private val port: SerialPort) {
         bytes?.copyInto(write, 7)
         port.writeBytes(write, write.size.toLong())
 
-        return id
+        return if (port.lastErrorCode != 0) -1 else id
     }
 
     fun sendMessage(msg: SerialMessage): Int {
