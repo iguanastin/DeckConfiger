@@ -65,6 +65,4 @@ abstract class HardwareComponentView(component: HardwareComponent) : BorderPane(
         }
     }
 
-    abstract fun ident()
-
 }

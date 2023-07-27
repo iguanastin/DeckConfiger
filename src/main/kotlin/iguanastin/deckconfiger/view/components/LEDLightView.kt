@@ -28,7 +28,7 @@ class LEDLightView(led: LEDLight): HardwareComponentView(led) {
         center = circle
     }
 
-    override fun ident() {
+    fun ident() {
         identTimeline.playFromStart()
     }
 
