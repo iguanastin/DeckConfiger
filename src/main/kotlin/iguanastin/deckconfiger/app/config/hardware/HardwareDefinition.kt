@@ -16,6 +16,10 @@ class HardwareDefinition {
         return json
     }
 
+    fun getNextID(): Int {
+        return (components.maxOfOrNull { it.id } ?: -1) + 1
+    }
+
 
     companion object {
         private const val jsonComponentsName = "components"

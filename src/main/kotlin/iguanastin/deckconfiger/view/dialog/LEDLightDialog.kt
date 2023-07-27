@@ -1,6 +1,7 @@
 package iguanastin.deckconfiger.view.dialog
 
 import iguanastin.deckconfiger.app.Styles
+import iguanastin.deckconfiger.app.config.hardware.HardwareDefinition
 import iguanastin.deckconfiger.app.config.hardware.LEDLight
 import javafx.event.ActionEvent
 import javafx.scene.control.ButtonType
@@ -9,7 +10,7 @@ import javafx.stage.Window
 import javafx.util.Callback
 import tornadofx.*
 
-class LEDLightDialog(led: LEDLight? = null, window: Window? = null) : GenericEditDialog<LEDLight>(window) {
+class LEDLightDialog(hardware: HardwareDefinition, led: LEDLight? = null, window: Window? = null) : GenericEditDialog<LEDLight>(window) {
 
     init {
         title = if (led == null) "New LED Light" else "Edit LED Light"
@@ -41,7 +42,7 @@ class LEDLightDialog(led: LEDLight? = null, window: Window? = null) : GenericEdi
         resultConverter = Callback {
             if (it != ButtonType.APPLY) return@Callback null
 
-            val result = led ?: LEDLight(0, 0, 0)
+            val result = led ?: LEDLight(hardware.getNextID(), 0, 0, 0)
             result.primaryPin = pinField.text.toInt()
 
             return@Callback result

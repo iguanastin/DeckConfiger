@@ -4,9 +4,9 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-class Encoder(primaryPin: Int, x: Int, y: Int, secondaryPin: Int): HardwareInput(primaryPin, x, y) {
+class Encoder(id: Int, primaryPin: Int, x: Int, y: Int, secondaryPin: Int): HardwareInput(id, primaryPin, x, y) {
 
-    constructor(json: JSONObject): this(json.getInt("pin"), json.getInt("x"), json.getInt("y"), json.getInt("pin2"))
+    constructor(json: JSONObject): this(json.getInt("id"), json.getInt("pin"), json.getInt("x"), json.getInt("y"), json.getInt("pin2"))
 
     companion object {
         const val type = "encoder"

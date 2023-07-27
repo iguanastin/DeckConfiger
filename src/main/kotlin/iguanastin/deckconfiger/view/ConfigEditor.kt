@@ -82,9 +82,9 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                                         event.consume()
                                         runLater {
                                             when (it) {
-                                                is LEDLight -> LEDLightDialog(it, scene.window).show()
-                                                is Button -> ButtonDialog(it, scene.window).show()
-                                                is Encoder -> EncoderDialog(it, scene.window).show()
+                                                is LEDLight -> LEDLightDialog(app.deckConfig!!.hardware, it, scene.window).show()
+                                                is Button -> ButtonDialog(app.deckConfig!!.hardware, it, scene.window).show()
+                                                is Encoder -> EncoderDialog(app.deckConfig!!.hardware, it, scene.window).show()
                                                 else -> throw IllegalArgumentException("Invalid type: $it")
                                             }
                                         }
@@ -125,19 +125,19 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                         MenuItem("Button").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                ButtonDialog(window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+                                ButtonDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
                             }
                         },
                         MenuItem("Encoder").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                EncoderDialog(window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+                                EncoderDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
                             }
                         },
                         MenuItem("LED Light").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                LEDLightDialog(window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+                                LEDLightDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
                             }
                         })
                 )

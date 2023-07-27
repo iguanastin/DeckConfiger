@@ -4,7 +4,12 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-abstract class HardwareComponent(primaryPin: Int, x: Int, y: Int) {
+abstract class HardwareComponent(id: Int, primaryPin: Int, x: Int, y: Int) {
+
+    val idProperty = SimpleIntegerProperty(id)
+    var id: Int
+        get() = idProperty.get()
+        set(value) = idProperty.set(value)
 
     val primaryPinProperty = SimpleIntegerProperty(primaryPin)
     var primaryPin: Int
@@ -30,6 +35,7 @@ abstract class HardwareComponent(primaryPin: Int, x: Int, y: Int) {
 
     open fun toJSON(): JSONObject {
         return JSONObject().apply {
+            put("id", id)
             put("type", type)
             put("pin", primaryPin)
             put("x", x)

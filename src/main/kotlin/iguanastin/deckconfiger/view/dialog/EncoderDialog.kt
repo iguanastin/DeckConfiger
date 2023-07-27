@@ -2,6 +2,7 @@ package iguanastin.deckconfiger.view.dialog
 
 import iguanastin.deckconfiger.app.Styles
 import iguanastin.deckconfiger.app.config.hardware.Encoder
+import iguanastin.deckconfiger.app.config.hardware.HardwareDefinition
 import javafx.event.ActionEvent
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TextFormatter
@@ -9,7 +10,7 @@ import javafx.stage.Window
 import javafx.util.Callback
 import tornadofx.*
 
-class EncoderDialog(encoder: Encoder? = null, window: Window? = null) : GenericEditDialog<Encoder>(window) {
+class EncoderDialog(hardware: HardwareDefinition, encoder: Encoder? = null, window: Window? = null) : GenericEditDialog<Encoder>(window) {
 
     init {
         title = if (encoder == null) "New Encoder" else "Edit Encoder"
@@ -60,7 +61,7 @@ class EncoderDialog(encoder: Encoder? = null, window: Window? = null) : GenericE
         resultConverter = Callback {
             if (it != ButtonType.APPLY) return@Callback null
 
-            val result = encoder ?: Encoder(0, 0, 0, 0)
+            val result = encoder ?: Encoder(hardware.getNextID(), 0, 0, 0, 0)
 
             result.apply {
                 primaryPin = pin1Field.text.toInt()

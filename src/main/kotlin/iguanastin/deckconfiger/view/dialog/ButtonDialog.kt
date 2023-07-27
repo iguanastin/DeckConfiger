@@ -2,6 +2,7 @@ package iguanastin.deckconfiger.view.dialog
 
 import iguanastin.deckconfiger.app.Styles
 import iguanastin.deckconfiger.app.config.hardware.Button
+import iguanastin.deckconfiger.app.config.hardware.HardwareDefinition
 import javafx.event.ActionEvent
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TextFormatter
@@ -10,7 +11,7 @@ import javafx.util.Callback
 import javafx.util.StringConverter
 import tornadofx.*
 
-class ButtonDialog(button: Button? = null, window: Window? = null) : GenericEditDialog<Button>(window) {
+class ButtonDialog(hardware: HardwareDefinition, button: Button? = null, window: Window? = null) : GenericEditDialog<Button>(window) {
 
     init {
         title = if (button == null) "New Button" else "Edit Button"
@@ -74,7 +75,7 @@ class ButtonDialog(button: Button? = null, window: Window? = null) : GenericEdit
         resultConverter = Callback {
             if (it != ButtonType.APPLY) return@Callback null
 
-            val result = button ?: Button(0, 0, 0)
+            val result = button ?: Button(hardware.getNextID(), 0, 0, 0)
 
             result.apply {
                 primaryPin = pinField.text.toInt()

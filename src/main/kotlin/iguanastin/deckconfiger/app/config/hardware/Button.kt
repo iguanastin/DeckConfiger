@@ -4,14 +4,16 @@ import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
 class Button(
+    id: Int,
     primaryPin: Int,
     x: Int,
     y: Int,
     detectPress: Int = defaultDetect,
     debounceInterval: Int = defaultDebounce
-) : HardwareInput(primaryPin, x, y) {
+) : HardwareInput(id, primaryPin, x, y) {
 
     constructor(json: JSONObject) : this(
+        json.getInt("id"),
         json.getInt("pin"),
         json.getInt("x"),
         json.getInt("y"),

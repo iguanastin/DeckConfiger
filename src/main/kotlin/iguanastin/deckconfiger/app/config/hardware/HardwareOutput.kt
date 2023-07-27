@@ -1,5 +1,5 @@
 package iguanastin.deckconfiger.app.config.hardware
 
-abstract class HardwareOutput(primaryPin: Int, x: Int, y: Int): HardwareComponent(primaryPin, x, y) {
+abstract class HardwareOutput(id: Int, primaryPin: Int, x: Int, y: Int): HardwareComponent(id, primaryPin, x, y) {
     
 }
