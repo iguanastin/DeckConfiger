@@ -1,6 +1,7 @@
 package iguanastin.deckconfiger.app.serial
 
 import com.fazecast.jSerialComm.SerialPort
+import javafx.beans.property.SimpleBooleanProperty
 import java.nio.ByteBuffer
 import kotlin.concurrent.thread
 
@@ -9,6 +10,11 @@ class SerialCommunicator(private val port: SerialPort) {
     companion object {
         const val SERIAL_MESSAGE_START: Int = 255
     }
+
+    val connectedProperty = SimpleBooleanProperty(false)
+    var connected: Boolean
+        get() = connectedProperty.get()
+        set(value) = connectedProperty.set(value)
 
     private var rollingRequestID: Byte = 1
 
@@ -19,28 +25,25 @@ class SerialCommunicator(private val port: SerialPort) {
 
 
     init {
-        port.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0)
-        if (!port.openPort()) {
-            close()
-        } else {
-            thread(isDaemon = true, name = "Serial Read") {
-                while (!closed) {
-                    if (port.lastErrorCode != 0) {
-                        Thread.sleep(500)
-                        port.closePort()
-                        port.openPort()
-                    }
+        port.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 3000, 0)
+        thread(isDaemon = true, name = "Serial Read") {
+            while (!closed) {
+                if (port.lastErrorCode != 0 || !port.isOpen) {
+                    connected = false
+                    Thread.sleep(500)
+                    port.closePort()
+                    if (port.openPort()) connected = true
+                }
 
-                    val one = ByteArray(1)
-                    if (port.readBytes(one, 1) < 1) continue
-                    val read = one[0]
-                    if (read == SERIAL_MESSAGE_START.toByte()) {
-                        val msg = readMessage()
-                        val response = messageHandler.invoke(msg)
-                        if (response != null) sendMessage(response)
-                    } else {
-                        print(read.toInt().toChar())
-                    }
+                val one = ByteArray(1)
+                if (port.readBytes(one, 1) < 1) continue
+                val read = one[0]
+                if (read == SERIAL_MESSAGE_START.toByte()) {
+                    val msg = readMessage()
+                    val response = messageHandler.invoke(msg)
+                    if (response != null) sendMessage(response)
+                } else {
+                    print(read.toInt().toChar())
                 }
             }
         }
@@ -59,6 +62,7 @@ class SerialCommunicator(private val port: SerialPort) {
         return SerialMessage(SerialMessage.Type.values().single { it.ordinal == type.toInt() }, id.toInt(), bytes)
     }
 
+    // Returns ID of sent message, or -1 if write failed
     fun sendMessage(
         type: SerialMessage.Type,
         bytes: ByteArray? = null,
@@ -66,7 +70,7 @@ class SerialCommunicator(private val port: SerialPort) {
     ): Int {
         if (port.lastErrorCode != 0) {
             port.closePort()
-            port.openPort()
+            if (port.openPort()) connected = true
         }
 
         val write = ByteArray(7 + (bytes?.size ?: 0))
@@ -76,6 +80,8 @@ class SerialCommunicator(private val port: SerialPort) {
         ByteBuffer.wrap(write, 3, 4).putInt(bytes?.size ?: 0)
         bytes?.copyInto(write, 7)
         port.writeBytes(write, write.size.toLong())
+
+        if (port.lastErrorCode != 0) connected = false
 
         return if (port.lastErrorCode != 0) -1 else id
     }

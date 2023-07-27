@@ -13,4 +13,8 @@ class EncoderView(encoder: Encoder) : HardwareComponentView(encoder) {
         // TODO Bind ident left/right
     }
 
+    override fun ident() {
+        TODO("Not yet implemented")
+    }
+
 }

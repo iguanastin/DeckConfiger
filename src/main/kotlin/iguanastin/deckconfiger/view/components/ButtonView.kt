@@ -11,4 +11,8 @@ class ButtonView(button: Button) : HardwareComponentView(button) {
         center = rectangle(width = 50, height = 50) { fill = Color.LIGHTGRAY }
     }
 
+    override fun ident() {
+        TODO("Not yet implemented")
+    }
+
 }

@@ -13,6 +13,9 @@ class Styles : Stylesheet() {
         val draggable by cssclass()
         val redBG by cssclass()
         val ident by cssclass()
+        val textRed by cssclass()
+        val textGreen by cssclass()
+        val connectedIcon by cssclass()
 
         val baseColor = c("#3b3f42")
     }
@@ -20,7 +23,6 @@ class Styles : Stylesheet() {
     init {
         root {
             baseColor = Styles.baseColor
-            backgroundColor += Styles.baseColor
         }
 
         label and heading {
@@ -45,6 +47,20 @@ class Styles : Stylesheet() {
 
         redBG {
             backgroundColor += Color.RED
+        }
+
+        connectedIcon {
+            backgroundColor += Styles.baseColor
+            backgroundRadius += box(5.px)
+            padding = box(5.px)
+            fontWeight = FontWeight.EXTRA_BOLD
+        }
+
+        textRed {
+            textFill = Color.RED.desaturate().brighter()
+        }
+        textGreen {
+            textFill = Color.GREEN
         }
     }
 }

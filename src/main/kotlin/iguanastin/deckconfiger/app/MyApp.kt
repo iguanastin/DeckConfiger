@@ -129,7 +129,11 @@ class MyApp : App(MainView::class, Styles::class) {
         val jsonString = deckConfig?.toJSON()?.toString() ?: return false
         val bytes = jsonString.toByteArray(Charsets.US_ASCII)
 
-        serial.sendMessage(SerialMessage.Type.CHANGE_CONFIG, bytes)
+        if (serial.sendMessage(SerialMessage.Type.CHANGE_CONFIG, bytes) < 0) {
+            return false
+        } else {
+            serial.connected = false
+        }
 
         return true
     }

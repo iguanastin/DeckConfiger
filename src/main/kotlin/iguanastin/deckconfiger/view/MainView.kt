@@ -1,7 +1,7 @@
 package iguanastin.deckconfiger.view
 
 import iguanastin.deckconfiger.app.MyApp
-import iguanastin.deckconfiger.app.config.DeckConfig
+import iguanastin.deckconfiger.app.Styles
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Pos
@@ -33,11 +33,14 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     enableWhen(myApp.deckConfigProperty.isNotNull)
                     onAction = EventHandler { event ->
                         event.consume()
-                        myApp.syncToDevice()
+                        if (!myApp.syncToDevice()) information(
+                            "Failed to sync",
+                            "Failed to sync to device",
+                            owner = currentWindow
+                        )
                     }
                 }
                 item("Sync from Device") {
-                    enableWhen(myApp.deckConfigProperty.isNotNull)
                     onAction = EventHandler { event ->
                         event.consume()
                         myApp.syncFromDevice()
@@ -57,6 +60,7 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     }
                 }
                 item("Close") {
+                    enableWhen(myApp.deckConfigProperty.isNotNull)
                     onAction = EventHandler { event ->
                         event.consume()
                         myApp.deckConfig = null
@@ -81,18 +85,68 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
             add(editor)
 
             vbox(10) {
+                isPickOnBounds = false
                 alignment = Pos.CENTER
                 hiddenWhen(myApp.deckConfigProperty.isNotNull)
-                hyperlink("Import from file") {
+                button("Sync from device") {
+                    enableWhen(myApp.serial.connectedProperty)
+                    onAction = EventHandler { event ->
+                        event.consume()
+                        myApp.syncFromDevice()
+                    }
+                }
+                button("Import from file") {
                     onAction = EventHandler { event ->
                         event.consume()
                         importFileDialog()
                     }
                 }
-                hyperlink("New blank config") {
+                button("New blank config") {
                     onAction = EventHandler { event ->
                         event.consume()
                         myApp.createNewConfig()
+                    }
+                }
+            }
+
+            anchorpane {
+                isPickOnBounds = false
+                val connLabel = label {
+                    prefWidthProperty().bind(heightProperty())
+                    alignment = Pos.CENTER
+                    anchorpaneConstraints {
+                        bottomAnchor = 10
+                        rightAnchor = 10
+                    }
+                    addClass(Styles.connectedIcon)
+                    text = "X"
+                    addClass(Styles.textRed)
+                    myApp.serial.connectedProperty.addListener { _, _, new ->
+                        runOnUIThread {
+                            if (new) {
+                                text = "✔"
+                                addClass(Styles.textGreen)
+                                removeClass(Styles.textRed)
+                            } else {
+                                text = "X"
+                                addClass(Styles.textRed)
+                                removeClass(Styles.textGreen)
+                            }
+                        }
+                    }
+                }
+                label {
+                    anchorpaneConstraints {
+                        bottomAnchor = 10
+                        rightAnchor = 50
+                    }
+                    visibleWhen(connLabel.hoverProperty())
+                    addClass(Styles.connectedIcon)
+                    text = "Not connected to deck"
+                    myApp.serial.connectedProperty.addListener { _, _, new ->
+                        runOnUIThread {
+                            text = if (new) "Connected to deck" else "Not connected to deck"
+                        }
                     }
                 }
             }

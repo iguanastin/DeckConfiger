@@ -109,6 +109,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                                     onAction = EventHandler { event ->
                                         event.consume()
                                         app.identLED(it.primaryPin)
+                                        view.ident()
                                     }
                                 }
                             }
