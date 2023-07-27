@@ -1,10 +1,10 @@
 package iguanastin.deckconfiger.app.config.profile
 
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import org.json.JSONObject
 
-// TODO better color/pattern data type?
-class DeckProfile(name: String, color: String = "white", pattern: String? = null) {
+class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
 
 
     val nameProperty = SimpleStringProperty(name)
@@ -12,22 +12,28 @@ class DeckProfile(name: String, color: String = "white", pattern: String? = null
         get() = nameProperty.get()
         set(value) = nameProperty.set(value)
 
-    val colorProperty = SimpleStringProperty(color)
-    var color: String
-        get() = colorProperty.get()
-        set(value) = colorProperty.set(value)
+    val rProperty = SimpleIntegerProperty(r)
+    var r: Int
+        get() = rProperty.get()
+        set(value) = rProperty.set(value)
 
-    val patternProperty = SimpleStringProperty(pattern)
-    var pattern: String?
-        get() = patternProperty.get()
-        set(value) = patternProperty.set(value)
+    val gProperty = SimpleIntegerProperty(g)
+    var g: Int
+        get() = gProperty.get()
+        set(value) = gProperty.set(value)
+
+    val bProperty = SimpleIntegerProperty(b)
+    var b: Int
+        get() = bProperty.get()
+        set(value) = bProperty.set(value)
 
 
     fun toJSON(): JSONObject {
         return JSONObject().apply {
             put("name", name)
-            put("color", color)
-            put("pattern", pattern)
+            put("r", r)
+            put("g", g)
+            put("b", b)
         }
     }
 
@@ -37,7 +43,7 @@ class DeckProfile(name: String, color: String = "white", pattern: String? = null
 
     companion object {
         fun fromJSON(json: JSONObject): DeckProfile {
-            return DeckProfile(json.getString("name"), json.getString("color"), json.optString("pattern"))
+            return DeckProfile(json.getString("name"), json.optInt("r"), json.optInt("g"), json.optInt("b"))
         }
     }
 

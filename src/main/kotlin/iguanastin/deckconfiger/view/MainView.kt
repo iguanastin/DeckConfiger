@@ -66,7 +66,7 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
         }
 
         center = stackpane {
-            configeditor {
+            configeditor(myApp) {
                 deckConfigProperty.bind(myApp.deckConfigProperty)
             }
 

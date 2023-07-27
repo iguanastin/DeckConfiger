@@ -1,5 +1,6 @@
 package iguanastin.deckconfiger.app.config.hardware
 
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
@@ -19,6 +20,11 @@ abstract class HardwareComponent(primaryPin: Int, x: Int, y: Int) {
     var y: Int
         get() = yProperty.get()
         set(value) = yProperty.set(value)
+
+    val identProperty = SimpleBooleanProperty(false)
+    var ident: Boolean
+        get() = identProperty.get()
+        set(value) = identProperty.set(value)
 
     abstract val type: String
 

@@ -36,6 +36,8 @@ abstract class HardwareComponentView(component: HardwareComponent) : BorderPane(
         layoutXProperty().bind(component.xProperty)
         layoutYProperty().bind(component.yProperty)
 
+        bindClass(component.identProperty.map { if (it) Styles.ident else null })
+
         initDragBehavior()
     }
 

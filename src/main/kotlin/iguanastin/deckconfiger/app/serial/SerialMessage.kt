@@ -2,7 +2,7 @@ package iguanastin.deckconfiger.app.serial
 
 import java.nio.charset.Charset
 
-class SerialMessage(val type: Type, val id: Int, val bytes: ByteArray) {
+class SerialMessage(val type: Type, val id: Int, val bytes: ByteArray? = null) {
 
     enum class Type {
         REQUEST_IDENTIFY,
@@ -13,13 +13,16 @@ class SerialMessage(val type: Type, val id: Int, val bytes: ByteArray) {
         RESPOND_ERROR,
         RESPOND_OK,
         CHANGE_CONFIG,
-        REQUEST_RESET
+        REQUEST_RESET,
+        IDENT_LED,
+        IDENT_ENCODER,
+        IDENT_BUTTON
     }
 
-    fun bytesToString(charset: Charset): String = bytes.toString(charset)
+    fun bytesToString(charset: Charset): String? = bytes?.toString(charset)
 
     override fun toString(): String {
-        return "($type, id:$id, len:${bytes.size})"
+        return "($type, id:$id, len:${bytes?.size ?: 0})"
     }
 
 }

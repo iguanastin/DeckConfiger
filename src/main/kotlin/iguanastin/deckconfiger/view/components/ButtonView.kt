@@ -4,7 +4,7 @@ import iguanastin.deckconfiger.app.config.hardware.Button
 import javafx.scene.paint.Color
 import tornadofx.*
 
-class PushButtonView(button: Button) : HardwareComponentView(button) {
+class ButtonView(button: Button) : HardwareComponentView(button) {
 
     init {
         top = label("Button")

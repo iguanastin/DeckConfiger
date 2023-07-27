@@ -1,6 +1,7 @@
 package iguanastin.deckconfiger.app
 
 import javafx.scene.Cursor
+import javafx.scene.effect.DropShadow
 import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
 import tornadofx.*
@@ -11,6 +12,7 @@ class Styles : Stylesheet() {
         val component by cssclass()
         val draggable by cssclass()
         val redBG by cssclass()
+        val ident by cssclass()
 
         val baseColor = c("#3b3f42")
     }
@@ -34,6 +36,11 @@ class Styles : Stylesheet() {
         }
         component and draggable and hover {
             cursor = Cursor.MOVE
+        }
+
+        ident {
+            backgroundColor += Color.RED
+            effect = DropShadow(5.0, Color.YELLOW).apply { spread = 5.0 }
         }
 
         redBG {

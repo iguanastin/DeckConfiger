@@ -1,5 +1,6 @@
 package iguanastin.deckconfiger.view
 
+import iguanastin.deckconfiger.app.MyApp
 import iguanastin.deckconfiger.app.addIfNotContains
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.hardware.HardwareComponent
@@ -8,8 +9,8 @@ import iguanastin.deckconfiger.app.config.hardware.Button
 import iguanastin.deckconfiger.app.config.hardware.Encoder
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.view.components.LEDLightView
-import iguanastin.deckconfiger.view.components.PushButtonView
-import iguanastin.deckconfiger.view.components.RotaryEncoderView
+import iguanastin.deckconfiger.view.components.ButtonView
+import iguanastin.deckconfiger.view.components.EncoderView
 import iguanastin.deckconfiger.view.dialog.ButtonDialog
 import iguanastin.deckconfiger.view.dialog.EncoderDialog
 import iguanastin.deckconfiger.view.dialog.LEDLightDialog
@@ -25,7 +26,7 @@ import javafx.scene.control.MenuItem
 import javafx.scene.layout.StackPane
 import tornadofx.*
 
-class ConfigEditor : StackPane() {
+class ConfigEditor(private val app: MyApp) : StackPane() {
 
     val deckConfigProperty = SimpleObjectProperty<DeckConfig?>()
     var deckConfig: DeckConfig?
@@ -68,8 +69,8 @@ class ConfigEditor : StackPane() {
                         componentsListener = children.bind(newDeck.hardware.components) {
                             val view = when (it) {
                                 is LEDLight -> LEDLightView(it)
-                                is Button -> PushButtonView(it)
-                                is Encoder -> RotaryEncoderView(it)
+                                is Button -> ButtonView(it)
+                                is Encoder -> EncoderView(it)
                                 else -> throw IllegalArgumentException("Invalid type: $it")
                             }
 
@@ -102,6 +103,12 @@ class ConfigEditor : StackPane() {
                                         ) {
                                             deckConfig?.hardware?.components?.remove(it)
                                         }
+                                    }
+                                }
+                                if (it is LEDLight) item("Ident") {
+                                    onAction = EventHandler { event ->
+                                        event.consume()
+                                        app.identLED(it.primaryPin)
                                     }
                                 }
                             }
