@@ -2,10 +2,14 @@ package iguanastin.deckconfiger.app.config.profile
 
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
+import org.json.JSONArray
 import org.json.JSONObject
+import tornadofx.*
 
 class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
 
+
+    val bindings = observableListOf<Binding>()
 
     val nameProperty = SimpleStringProperty(name)
     var name: String
@@ -34,6 +38,10 @@ class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
             put("r", r)
             put("g", g)
             put("b", b)
+
+            val binds = JSONArray()
+            put("bindings", binds)
+            bindings.forEach { binds.put(it.toJSON()) }
         }
     }
 
@@ -43,7 +51,9 @@ class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
 
     companion object {
         fun fromJSON(json: JSONObject): DeckProfile {
-            return DeckProfile(json.getString("name"), json.optInt("r"), json.optInt("g"), json.optInt("b"))
+            return DeckProfile(json.getString("name"), json.optInt("r"), json.optInt("g"), json.optInt("b")).apply {
+                json.optJSONArray("bindings")?.forEach { bindings.add(Binding.fromJSON(it as JSONObject)) }
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import iguanastin.deckconfiger.app.Styles
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Pos
+import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import tornadofx.*
 
@@ -21,133 +22,165 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
     }
 
     override val root = borderpane {
-        top = menubar {
-            menu("File") {
-                item("New blank config") {
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        myApp.createNewConfig()
-                    }
-                }
-                item("Sync to Device") {
-                    enableWhen(myApp.deckConfigProperty.isNotNull)
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        if (!myApp.syncToDevice()) information(
-                            "Failed to sync",
-                            "Failed to sync to device",
-                            owner = currentWindow
-                        )
-                    }
-                }
-                item("Sync from Device") {
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        myApp.syncFromDevice()
-                    }
-                }
-                item("Export to File") {
-                    enableWhen(myApp.deckConfigProperty.isNotNull)
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        exportFileDialog()
-                    }
-                }
-                item("Import from File") {
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        importFileDialog()
-                    }
-                }
-                item("Close") {
-                    enableWhen(myApp.deckConfigProperty.isNotNull)
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        myApp.deckConfig = null
-                    }
-                }
-                separator()
-                item("Exit") {
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        Platform.exit()
-                    }
-                }
-            }
-            menu("Edit") {
-                checkmenuitem("Edit Hardware") {
-                    selectedProperty().bindBidirectional(editor.editHardwareProperty)
-                }
-            }
-        }
+        top = initMenuBar()
 
         center = stackpane {
             add(editor)
 
-            vbox(10) {
-                isPickOnBounds = false
+            initEditorSetupButtons()
+
+            initEditorOverlay()
+        }
+    }
+
+    private fun StackPane.initEditorOverlay() {
+        anchorpane {
+            isPickOnBounds = false
+            val connLabel = label {
+                prefWidthProperty().bind(heightProperty())
                 alignment = Pos.CENTER
-                hiddenWhen(myApp.deckConfigProperty.isNotNull)
-                button("Sync from device") {
-                    enableWhen(myApp.serial.connectedProperty)
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        myApp.syncFromDevice()
-                    }
+                anchorpaneConstraints {
+                    bottomAnchor = 10
+                    rightAnchor = 10
                 }
-                button("Import from file") {
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        importFileDialog()
-                    }
-                }
-                button("New blank config") {
-                    onAction = EventHandler { event ->
-                        event.consume()
-                        myApp.createNewConfig()
+                addClass(Styles.connectedIcon)
+                text = "X"
+                addClass(Styles.textRed)
+                myApp.serial.connectedProperty.addListener { _, _, new ->
+                    runOnUIThread {
+                        if (new) {
+                            text = "✔"
+                            addClass(Styles.textGreen)
+                            removeClass(Styles.textRed)
+                        } else {
+                            text = "X"
+                            addClass(Styles.textRed)
+                            removeClass(Styles.textGreen)
+                        }
                     }
                 }
             }
-
-            anchorpane {
-                isPickOnBounds = false
-                val connLabel = label {
-                    prefWidthProperty().bind(heightProperty())
-                    alignment = Pos.CENTER
-                    anchorpaneConstraints {
-                        bottomAnchor = 10
-                        rightAnchor = 10
-                    }
-                    addClass(Styles.connectedIcon)
-                    text = "X"
-                    addClass(Styles.textRed)
-                    myApp.serial.connectedProperty.addListener { _, _, new ->
-                        runOnUIThread {
-                            if (new) {
-                                text = "✔"
-                                addClass(Styles.textGreen)
-                                removeClass(Styles.textRed)
-                            } else {
-                                text = "X"
-                                addClass(Styles.textRed)
-                                removeClass(Styles.textGreen)
-                            }
-                        }
+            label {
+                anchorpaneConstraints {
+                    bottomAnchor = 10
+                    rightAnchor = 50
+                }
+                visibleWhen(connLabel.hoverProperty())
+                addClass(Styles.connectedIcon)
+                text = "Not connected to deck"
+                myApp.serial.connectedProperty.addListener { _, _, new ->
+                    runOnUIThread {
+                        text = if (new) "Connected to deck" else "Not connected to deck"
                     }
                 }
-                label {
-                    anchorpaneConstraints {
-                        bottomAnchor = 10
-                        rightAnchor = 50
-                    }
-                    visibleWhen(connLabel.hoverProperty())
-                    addClass(Styles.connectedIcon)
-                    text = "Not connected to deck"
-                    myApp.serial.connectedProperty.addListener { _, _, new ->
-                        runOnUIThread {
-                            text = if (new) "Connected to deck" else "Not connected to deck"
-                        }
-                    }
+            }
+        }
+    }
+
+    private fun StackPane.initEditorSetupButtons() {
+        vbox(10) {
+            isPickOnBounds = false
+            alignment = Pos.CENTER
+            hiddenWhen(myApp.deckConfigProperty.isNotNull)
+            button("Sync from device") {
+                enableWhen(myApp.serial.connectedProperty)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    myApp.syncFromDevice()
+                }
+            }
+            button("Import from file") {
+                onAction = EventHandler { event ->
+                    event.consume()
+                    importFileDialog()
+                }
+            }
+            button("New blank config") {
+                onAction = EventHandler { event ->
+                    event.consume()
+                    myApp.createNewConfig()
+                }
+            }
+        }
+    }
+
+    private fun initMenuBar() = menubar {
+        menu("File") {
+            item("New blank config") {
+                onAction = EventHandler { event ->
+                    event.consume()
+                    myApp.createNewConfig()
+                }
+            }
+            item("Sync to Device") {
+                enableWhen(myApp.deckConfigProperty.isNotNull)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    if (!myApp.syncToDevice()) information(
+                        "Failed to sync",
+                        "Failed to sync to device",
+                        owner = currentWindow
+                    )
+                }
+            }
+            item("Sync from Device") {
+                onAction = EventHandler { event ->
+                    event.consume()
+                    myApp.syncFromDevice()
+                }
+            }
+            item("Export to File") {
+                enableWhen(myApp.deckConfigProperty.isNotNull)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    exportFileDialog()
+                }
+            }
+            item("Import from File") {
+                onAction = EventHandler { event ->
+                    event.consume()
+                    importFileDialog()
+                }
+            }
+            item("Close") {
+                enableWhen(myApp.deckConfigProperty.isNotNull)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    myApp.deckConfig = null
+                }
+            }
+            separator()
+            item("Exit") {
+                onAction = EventHandler { event ->
+                    event.consume()
+                    Platform.exit()
+                }
+            }
+        }
+        menu("Edit") {
+            checkmenuitem("Edit Hardware") {
+                selectedProperty().bindBidirectional(editor.editHardwareProperty)
+            }
+            separator()
+            item("Add Button") {
+                enableWhen(editor.editHardwareProperty)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    editor.openNewButtonDialog()
+                }
+            }
+            item("Add Encoder") {
+                enableWhen(editor.editHardwareProperty)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    editor.openNewEncoderDialog()
+                }
+            }
+            item("Add LED") {
+                enableWhen(editor.editHardwareProperty)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    editor.openNewLEDDialog()
                 }
             }
         }

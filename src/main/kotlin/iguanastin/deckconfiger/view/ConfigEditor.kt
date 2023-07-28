@@ -125,19 +125,19 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                         MenuItem("Button").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                ButtonDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+                                openNewButtonDialog()
                             }
                         },
                         MenuItem("Encoder").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                EncoderDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+                                openNewEncoderDialog()
                             }
                         },
                         MenuItem("LED Light").apply {
                             onAction = EventHandler { event ->
                                 event.consume()
-                                LEDLightDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait().ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+                                openNewLEDDialog()
                             }
                         })
                 )
@@ -210,6 +210,21 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                 }
             }
         }
+    }
+
+    fun openNewLEDDialog() {
+        LEDLightDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait()
+            .ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+    }
+
+    fun openNewEncoderDialog() {
+        EncoderDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait()
+            .ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+    }
+
+    fun openNewButtonDialog() {
+        ButtonDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait()
+            .ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
     }
 
     private fun profileDialog(profile: DeckProfile? = null): DeckProfile? {
