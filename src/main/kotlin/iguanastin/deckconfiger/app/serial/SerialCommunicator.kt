@@ -22,6 +22,7 @@ class SerialCommunicator(private val port: SerialPort) {
     private var closed = false
 
     var messageHandler: (SerialMessage) -> SerialMessage? = { null }
+    var rawSerialHandler: (Byte) -> Unit = {}
 
 
     init {
@@ -43,7 +44,7 @@ class SerialCommunicator(private val port: SerialPort) {
                     val response = messageHandler.invoke(msg)
                     if (response != null) sendMessage(response)
                 } else {
-                    print(read.toInt().toChar())
+                    rawSerialHandler(read)
                 }
             }
         }
@@ -68,10 +69,7 @@ class SerialCommunicator(private val port: SerialPort) {
         bytes: ByteArray? = null,
         id: Int = rollingRequestID++.toInt()
     ): Int {
-        if (port.lastErrorCode != 0) {
-            port.closePort()
-            if (port.openPort()) connected = true
-        }
+        tryEnsurePortIsOpen()
 
         val write = ByteArray(7 + (bytes?.size ?: 0))
         write[0] = SERIAL_MESSAGE_START.toByte()
@@ -88,6 +86,19 @@ class SerialCommunicator(private val port: SerialPort) {
 
     fun sendMessage(msg: SerialMessage): Int {
         return sendMessage(msg.type, msg.bytes, msg.id)
+    }
+
+    fun sendRaw(bytes: ByteArray): Int {
+        tryEnsurePortIsOpen()
+        return port.writeBytes(bytes, bytes.size.toLong())
+    }
+
+    private fun tryEnsurePortIsOpen() {
+        if (port.lastErrorCode != 0) {
+            connected = false
+            port.closePort()
+            if (port.openPort()) connected = true
+        }
     }
 
     fun close() {

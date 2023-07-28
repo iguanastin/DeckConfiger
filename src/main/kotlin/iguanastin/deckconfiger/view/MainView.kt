@@ -5,6 +5,10 @@ import iguanastin.deckconfiger.app.Styles
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Pos
+import javafx.geometry.Side
+import javafx.scene.control.Tab
+import javafx.scene.control.TabPane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import tornadofx.*
@@ -24,12 +28,23 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
     override val root = borderpane {
         top = initMenuBar()
 
-        center = stackpane {
-            add(editor)
+        center = tabpane {
+            side = Side.BOTTOM
+            tabDragPolicy = TabPane.TabDragPolicy.FIXED
+            tab("Config") {
+                closableProperty().set(false)
+                stackpane {
+                    add(editor)
 
-            initEditorSetupButtons()
+                    initEditorSetupButtons()
 
-            initEditorOverlay()
+                    initEditorOverlay()
+                }
+            }
+            tab("Console") {
+                closableProperty().set(false)
+                serialconsole(myApp.serial)
+            }
         }
     }
 

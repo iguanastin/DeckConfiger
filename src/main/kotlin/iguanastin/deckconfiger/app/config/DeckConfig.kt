@@ -1,5 +1,6 @@
 package iguanastin.deckconfiger.app.config
 
+import iguanastin.deckconfiger.app.config.hardware.HardwareComponent
 import iguanastin.deckconfiger.app.config.hardware.HardwareDefinition
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import org.json.JSONArray
@@ -22,6 +23,10 @@ class DeckConfig {
                 profiles.forEach { put(it.toJSON()) }
             })
         }
+    }
+
+    fun getComponent(id: Int): HardwareComponent? {
+        return hardware.components.singleOrNull { it.id == id }
     }
 
     companion object {

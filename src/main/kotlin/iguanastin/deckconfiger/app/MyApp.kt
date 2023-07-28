@@ -57,11 +57,11 @@ class MyApp : App(MainView::class, Styles::class) {
                     null
                 }
                 SerialMessage.Type.RESPOND_ERROR -> {
-                    println("SERIAL ERROR MESSAGE: " + msg.bytesToString(Charsets.US_ASCII))
+                    println("ERROR RESPONSE (${msg.id}): " + msg.bytesToString(Charsets.US_ASCII))
                     null
                 }
                 SerialMessage.Type.RESPOND_OK -> {
-                    println("Respond OK")
+                    println("Respond OK (${msg.id})")
                     null
                 }
                 SerialMessage.Type.IDENT_BUTTON -> {
