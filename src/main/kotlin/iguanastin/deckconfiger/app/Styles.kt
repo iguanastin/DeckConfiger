@@ -1,6 +1,5 @@
 package iguanastin.deckconfiger.app
 
-import javafx.geometry.Pos
 import javafx.scene.Cursor
 import javafx.scene.effect.DropShadow
 import javafx.scene.paint.Color

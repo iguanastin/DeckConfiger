@@ -6,9 +6,7 @@ import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.geometry.Side
-import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
-import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import tornadofx.*
@@ -58,20 +56,22 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     bottomAnchor = 10
                     rightAnchor = 10
                 }
+                val update = { new: Boolean ->
+                    if (new) {
+                        text = "✔"
+                        addClass(Styles.textGreen)
+                        removeClass(Styles.textRed)
+                    } else {
+                        text = "X"
+                        addClass(Styles.textRed)
+                        removeClass(Styles.textGreen)
+                    }
+                }
                 addClass(Styles.connectedIcon)
-                text = "X"
-                addClass(Styles.textRed)
+                update(myApp.serial.connected)
                 myApp.serial.connectedProperty.addListener { _, _, new ->
                     runOnUIThread {
-                        if (new) {
-                            text = "✔"
-                            addClass(Styles.textGreen)
-                            removeClass(Styles.textRed)
-                        } else {
-                            text = "X"
-                            addClass(Styles.textRed)
-                            removeClass(Styles.textGreen)
-                        }
+                        update(new)
                     }
                 }
             }
@@ -80,7 +80,7 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     bottomAnchor = 10
                     rightAnchor = 50
                 }
-                visibleWhen(connLabel.hoverProperty())
+                visibleWhen(connLabel.hoverProperty().or(myApp.serial.connectedProperty.not()))
                 addClass(Styles.connectedIcon)
                 text = "Not connected to deck"
                 myApp.serial.connectedProperty.addListener { _, _, new ->

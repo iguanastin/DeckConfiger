@@ -1,6 +1,5 @@
 package iguanastin.deckconfiger.view.dialog
 
-import iguanastin.deckconfiger.app.Styles
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Dialog
 import javafx.scene.layout.VBox

@@ -46,7 +46,7 @@ class ButtonDialog(hardware: HardwareDefinition, button: Button? = null, window:
                     return if (int == 0) "LOW" else "HIGH"
                 }
 
-                override fun fromString(string: String?): Int? {
+                override fun fromString(string: String?): Int {
                     return if (string == "LOW") 0 else 1
                 }
             }
