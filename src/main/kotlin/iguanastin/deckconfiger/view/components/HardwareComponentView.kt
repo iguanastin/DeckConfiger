@@ -5,6 +5,7 @@ import iguanastin.deckconfiger.app.config.hardware.HardwareComponent
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
+import javafx.scene.input.MouseButton
 import javafx.scene.layout.BorderPane
 import tornadofx.*
 
@@ -44,7 +45,7 @@ abstract class HardwareComponentView(component: HardwareComponent) : BorderPane(
     private fun initDragBehavior() {
         // Init drag listeners
         onDragDetected = EventHandler { event ->
-            if (draggable) {
+            if (draggable && event.button == MouseButton.PRIMARY) {
                 event.consume()
                 dragOffsetX = event.x
                 dragOffsetY = event.y

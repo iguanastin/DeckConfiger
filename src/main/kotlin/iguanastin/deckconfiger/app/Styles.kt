@@ -16,6 +16,9 @@ class Styles : Stylesheet() {
         val textRed by cssclass()
         val textGreen by cssclass()
         val connectedIcon by cssclass()
+        val dialogPane by cssclass()
+        val dialogRoot by cssclass()
+        val dialogHeader by cssclass()
 
         val baseColor = c("#3b3f42")
     }
@@ -38,6 +41,20 @@ class Styles : Stylesheet() {
         }
         component and draggable and hover {
             cursor = Cursor.MOVE
+        }
+
+        dialogPane {
+            backgroundColor += Styles.baseColor
+            effect = DropShadow(50.0, c("black")).apply { spread = 0.25 }
+        }
+
+        dialogRoot {
+            padding = box(20.px)
+        }
+
+        dialogHeader {
+            fontSize = 1.5.em
+            fontWeight = FontWeight.BOLD
         }
 
         ident {

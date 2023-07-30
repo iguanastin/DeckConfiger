@@ -12,10 +12,7 @@ import iguanastin.deckconfiger.view.components.ButtonView
 import iguanastin.deckconfiger.view.components.EncoderView
 import iguanastin.deckconfiger.view.components.HardwareComponentView
 import iguanastin.deckconfiger.view.components.LEDLightView
-import iguanastin.deckconfiger.view.dialog.ButtonDialog
-import iguanastin.deckconfiger.view.dialog.EncoderDialog
-import iguanastin.deckconfiger.view.dialog.LEDLightDialog
-import iguanastin.deckconfiger.view.dialog.ProfileDialog
+import iguanastin.deckconfiger.view.dialog.*
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
@@ -139,9 +136,9 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                     event.consume()
                     runLater {
                         when (it) {
-                            is LEDLight -> LEDLightDialog(app.deckConfig!!.hardware, it, scene.window).show()
-                            is Button -> ButtonDialog(app.deckConfig!!.hardware, it, scene.window).show()
-                            is Encoder -> EncoderDialog(app.deckConfig!!.hardware, it, scene.window).show()
+                            is LEDLight -> app.root.root.add(EditLEDDialog(it, app.deckConfig!!.hardware))
+                            is Button -> app.root.root.add(EditButtonDialog(it, app.deckConfig!!.hardware))
+                            is Encoder -> app.root.root.add(EditEncoderDialog(it, app.deckConfig!!.hardware))
                             else -> throw IllegalArgumentException("Invalid type: $it")
                         }
                     }
@@ -203,16 +200,17 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                 tooltip("Edit Profile")
                 onAction = EventHandler { event ->
                     event.consume()
-                    profileDialog(profile)
+                    app.root.root.add(EditProfileDialog(profile))
                 }
             }
             button("➕") {
                 tooltip("New Profile")
                 onAction = EventHandler { event ->
                     event.consume()
-                    val result = profileDialog() ?: return@EventHandler
-                    deckConfig?.profiles?.add(result)
-                    this@ConfigEditor.profile = result
+                    app.root.root.add(EditProfileDialog(onAccept = {
+                        deckConfig?.profiles?.add(it)
+                        profile = it
+                    }))
                 }
             }
             button("\uD83D\uDDD1") {
@@ -239,22 +237,21 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
     }
 
     fun openNewLEDDialog() {
-        LEDLightDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait()
-            .ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+        app.root.root.add(EditLEDDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
+            deckConfig?.hardware?.components?.addIfNotContains(it)
+        }))
     }
 
     fun openNewEncoderDialog() {
-        EncoderDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait()
-            .ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
+        app.root.root.add(EditEncoderDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
+            deckConfig?.hardware?.components?.addIfNotContains(it)
+        }))
     }
 
     fun openNewButtonDialog() {
-        ButtonDialog(app.deckConfig!!.hardware, window = scene.window).showAndWait()
-            .ifPresent { deckConfig?.hardware?.components?.addIfNotContains(it) }
-    }
-
-    private fun profileDialog(profile: DeckProfile? = null): DeckProfile? {
-        return ProfileDialog(profile, scene.window).showAndWait().orElse(null)
+        app.root.root.add(EditButtonDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
+            deckConfig?.hardware?.components?.addIfNotContains(it)
+        }))
     }
 
 }

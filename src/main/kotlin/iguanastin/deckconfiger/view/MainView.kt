@@ -23,28 +23,41 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
         deckConfigProperty.bind(myApp.deckConfigProperty)
     }
 
-    override val root = borderpane {
-        top = initMenuBar()
+    private val rootPane = topenabledstackpane {
+        borderpane {
+            top = initMenuBar()
 
-        center = tabpane {
-            side = Side.BOTTOM
-            tabDragPolicy = TabPane.TabDragPolicy.FIXED
-            tab("Config") {
-                closableProperty().set(false)
-                stackpane {
-                    add(editor)
+            center = tabpane {
+                side = Side.BOTTOM
+                tabDragPolicy = TabPane.TabDragPolicy.FIXED
+                tab("Config") {
+                    closableProperty().set(false)
+                    stackpane {
+                        add(editor)
 
-                    initEditorSetupButtons()
+                        initEditorSetupButtons()
 
-                    initEditorOverlay()
+                        initEditorOverlay()
+                    }
                 }
-            }
-            tab("Console") {
-                closableProperty().set(false)
-                serialconsole(myApp.serial)
+                tab("Console") {
+                    closableProperty().set(false)
+                    serialconsole(myApp.serial)
+                }
             }
         }
     }
+
+    override val root = rootPane
+
+
+    init {
+        myApp.currentFileProperty.addListener { _, _, newFile ->
+            title = "DeckConfiger ${MyApp.version}"
+            if (newFile != null) title += " - $newFile"
+        }
+    }
+
 
     private fun StackPane.initEditorOverlay() {
         anchorpane {
@@ -198,13 +211,6 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     editor.openNewLEDDialog()
                 }
             }
-        }
-    }
-
-    init {
-        myApp.currentFileProperty.addListener { _, _, newFile ->
-            title = "DeckConfiger ${MyApp.version}"
-            if (newFile != null) title += " - $newFile"
         }
     }
 

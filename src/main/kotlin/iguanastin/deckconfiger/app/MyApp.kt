@@ -40,68 +40,17 @@ class MyApp : App(MainView::class, Styles::class) {
     val serial =
         SerialCommunicator(SerialPort.getCommPorts().single { it.portDescription == "Serial/Keyboard/Mouse/Joystick" })
 
+    lateinit var root: MainView
+
 
     init {
-        serial.messageHandler = { msg: SerialMessage ->
-            when (msg.type) {
-                SerialMessage.Type.REQUEST_IDENTIFY -> SerialMessage(
-                    SerialMessage.Type.RESPOND_IDENTIFY,
-                    msg.id,
-                    "USBDeck Config Editor ($version): ${System.getProperty("os")}".toByteArray(Charsets.US_ASCII)
-                )
-                SerialMessage.Type.RESPOND_CONFIG -> {
-                    val str = msg.bytesToString(Charsets.US_ASCII)
-                    runOnUIThread {
-                        deckConfig = if (!str.isNullOrBlank()) DeckConfig.fromJSON(JSONObject(str)) else DeckConfig()
-                    }
-                    null
-                }
-                SerialMessage.Type.RESPOND_ERROR -> {
-                    println("ERROR RESPONSE (${msg.id}): " + msg.bytesToString(Charsets.US_ASCII))
-                    null
-                }
-                SerialMessage.Type.RESPOND_OK -> {
-                    println("Respond OK (${msg.id})")
-                    null
-                }
-                SerialMessage.Type.IDENT_BUTTON -> {
-                    handleSerialIdentButton(msg)
-                }
-                SerialMessage.Type.IDENT_ENCODER -> {
-                    handleSerialIdentEncoder(msg)
-                }
-                else -> null
-            }
-        }
-    }
-
-    private fun handleSerialIdentButton(msg: SerialMessage): SerialMessage {
-        val pin = ByteBuffer.wrap(msg.bytes).int
-        val button = deckConfig?.hardware?.components?.singleOrNull { it.primaryPin == pin && it is Button }
-        button?.ident = true
-        Timeline(KeyFrame(Duration.seconds(3.0), {
-            button?.ident = false
-        })).play()
-        return SerialMessage(SerialMessage.Type.RESPOND_OK, msg.id)
-    }
-
-    private fun handleSerialIdentEncoder(msg: SerialMessage): SerialMessage {
-        val pin = ByteBuffer.wrap(msg.bytes).int
-        val encoder =
-            deckConfig?.hardware?.components?.singleOrNull { it is Encoder && (it.primaryPin == pin || it.secondaryPin == pin) }
-        encoder?.apply {
-            ident = true
-            (this as Encoder).identLeft = primaryPin == pin
-        }
-        Timeline(KeyFrame(Duration.seconds(3.0), {
-            encoder?.ident = false
-        })).play()
-        return SerialMessage(SerialMessage.Type.RESPOND_OK, msg.id)
+        serial.messageHandler = { msg: SerialMessage -> handleSerialMessage(msg) }
     }
 
 
     override fun start(stage: Stage) {
         super.start(stage)
+        root = find(primaryView) as MainView
 
         serial.sendMessage(SerialMessage.Type.REQUEST_CONFIG)
 
@@ -146,6 +95,60 @@ class MyApp : App(MainView::class, Styles::class) {
         if (pin < 0 || pin > 255) throw IllegalArgumentException("Pin number outside of range: $pin")
         val bytes = pin.toString().toByteArray(Charsets.US_ASCII)
         serial.sendMessage(SerialMessage.Type.IDENT_LED, bytes)
+    }
+
+    private fun handleSerialIdentButton(msg: SerialMessage): SerialMessage {
+        val pin = ByteBuffer.wrap(msg.bytes).int
+        val button = deckConfig?.hardware?.components?.singleOrNull { it.primaryPin == pin && it is Button }
+        button?.ident = true
+        Timeline(KeyFrame(Duration.seconds(3.0), {
+            button?.ident = false
+        })).play()
+        return SerialMessage(SerialMessage.Type.RESPOND_OK, msg.id)
+    }
+
+    private fun handleSerialIdentEncoder(msg: SerialMessage): SerialMessage {
+        val pin = ByteBuffer.wrap(msg.bytes).int
+        val encoder =
+            deckConfig?.hardware?.components?.singleOrNull { it is Encoder && (it.primaryPin == pin || it.secondaryPin == pin) }
+        encoder?.apply {
+            ident = true
+            (this as Encoder).identLeft = primaryPin == pin
+        }
+        Timeline(KeyFrame(Duration.seconds(3.0), {
+            encoder?.ident = false
+        })).play()
+        return SerialMessage(SerialMessage.Type.RESPOND_OK, msg.id)
+    }
+
+    private fun handleSerialMessage(msg: SerialMessage) = when (msg.type) {
+        SerialMessage.Type.REQUEST_IDENTIFY -> SerialMessage(
+            SerialMessage.Type.RESPOND_IDENTIFY,
+            msg.id,
+            "USBDeck Config Editor ($version): ${System.getProperty("os")}".toByteArray(Charsets.US_ASCII)
+        )
+        SerialMessage.Type.RESPOND_CONFIG -> {
+            val str = msg.bytesToString(Charsets.US_ASCII)
+            runOnUIThread {
+                deckConfig = if (!str.isNullOrBlank()) DeckConfig.fromJSON(JSONObject(str)) else DeckConfig()
+            }
+            null
+        }
+        SerialMessage.Type.RESPOND_ERROR -> {
+            println("ERROR RESPONSE (${msg.id}): " + msg.bytesToString(Charsets.US_ASCII))
+            null
+        }
+        SerialMessage.Type.RESPOND_OK -> {
+            println("Respond OK (${msg.id})")
+            null
+        }
+        SerialMessage.Type.IDENT_BUTTON -> {
+            handleSerialIdentButton(msg)
+        }
+        SerialMessage.Type.IDENT_ENCODER -> {
+            handleSerialIdentEncoder(msg)
+        }
+        else -> null
     }
 
     override fun stop() {
