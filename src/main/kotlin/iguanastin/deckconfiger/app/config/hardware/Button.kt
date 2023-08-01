@@ -3,23 +3,7 @@ package iguanastin.deckconfiger.app.config.hardware
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-class Button(
-    id: Int,
-    primaryPin: Int,
-    x: Int,
-    y: Int,
-    detectPress: Int = defaultDetect,
-    debounceInterval: Int = defaultDebounce
-) : HardwareInput(id, primaryPin, x, y) {
-
-    constructor(json: JSONObject) : this(
-        json.getInt("id"),
-        json.getInt("pin"),
-        json.getInt("x"),
-        json.getInt("y"),
-        json.getInt("detect"),
-        json.getInt("debounce")
-    )
+class Button(json: JSONObject? = null, id: Int = -1) : HardwareInput(json, id) {
 
     companion object {
         const val type = "button"
@@ -27,17 +11,24 @@ class Button(
         const val defaultDetect = 0
     }
 
-    val detectPressProperty = SimpleIntegerProperty(detectPress)
+    val detectPressProperty = SimpleIntegerProperty(defaultDetect)
     var detectPress: Int
         get() = detectPressProperty.get()
         set(value) = detectPressProperty.set(value)
 
-    val debounceProperty = SimpleIntegerProperty(debounceInterval)
+    val debounceProperty = SimpleIntegerProperty(defaultDebounce)
     var debounceInterval: Int
         get() = debounceProperty.get()
         set(value) = debounceProperty.set(value)
 
     override val type: String = Button.type
+
+
+    init {
+        detectPress = json?.optInt("detect") ?: defaultDetect
+        debounceInterval = json?.optInt("debounce") ?: defaultDebounce
+    }
+
 
     override fun toJSON(): JSONObject {
         return super.toJSON().apply {

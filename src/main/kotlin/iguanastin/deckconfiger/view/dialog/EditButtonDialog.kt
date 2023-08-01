@@ -18,6 +18,7 @@ class EditButtonDialog(
     onClose: () -> Unit = {}
 ) : StackDialog(onClose) {
 
+    private lateinit var nameField: TextField
     private lateinit var pinField: TextField
     private lateinit var debounceField: TextField
     private lateinit var detectField: ChoiceBox<Int>
@@ -28,6 +29,14 @@ class EditButtonDialog(
         root.graphic = vbox(10) {
             addClass(Styles.dialogRoot)
             label(if (button == null) "New button" else "Edit button") { addClass(Styles.dialogHeader) }
+
+            hbox(5) {
+                alignment = Pos.CENTER_LEFT
+                label("Name:")
+                nameField = textfield(button?.name) {
+                    promptText = "Name"
+                }
+            }
             hbox(5) {
                 alignment = Pos.CENTER_LEFT
                 label("Pin:")
@@ -75,7 +84,8 @@ class EditButtonDialog(
                         }
                         close()
                         var result = button
-                        if (result == null) result = Button(hw.getNextID(), 0, 0, 0)
+                        if (result == null) result = Button(id = hw.getNextID())
+                        result.name = nameField.text
                         result.primaryPin = pinField.text.toInt()
                         result.detectPress = detectField.value
                         result.debounceInterval = debounceField.text.toInt()

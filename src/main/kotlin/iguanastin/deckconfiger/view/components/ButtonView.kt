@@ -23,7 +23,6 @@ class ButtonView(button: Button) : HardwareComponentView(button) {
     private val rect = rectangle(width = 50, height = 50) { fill = Color.LIGHTGRAY }
 
     init {
-        top = label("Button")
         center = rect
 
         button.identProperty.addListener { _, _, new ->

@@ -16,6 +16,7 @@ class EditEncoderDialog(
     onClose: () -> Unit = {}
 ) : StackDialog(onClose) {
 
+    private lateinit var nameField: TextField
     private lateinit var pin1Field: TextField
     private lateinit var pin2Field: TextField
     private lateinit var acceptButton: javafx.scene.control.Button
@@ -25,6 +26,14 @@ class EditEncoderDialog(
         root.graphic = vbox(10) {
             addClass(Styles.dialogRoot)
             label(if (encoder == null) "New encoder" else "Edit encoder") { addClass(Styles.dialogHeader) }
+
+            hbox(5) {
+                alignment = Pos.CENTER_LEFT
+                label("Name:")
+                nameField = textfield(encoder?.name) {
+                    promptText = "Name"
+                }
+            }
             hbox(5) {
                 alignment = Pos.CENTER_LEFT
                 label("Pin 1:")
@@ -59,7 +68,8 @@ class EditEncoderDialog(
                         }
                         close()
                         var result = encoder
-                        if (result == null) result = Encoder(hw.getNextID(), 0, 0, 0, 0)
+                        if (result == null) result = Encoder(id = hw.getNextID())
+                        result.name = nameField.text
                         result.primaryPin = pin1Field.text.toInt()
                         result.secondaryPin = pin2Field.text.toInt()
                         onAccept(result)

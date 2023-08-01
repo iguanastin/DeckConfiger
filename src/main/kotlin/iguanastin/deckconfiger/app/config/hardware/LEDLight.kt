@@ -2,9 +2,7 @@ package iguanastin.deckconfiger.app.config.hardware
 
 import org.json.JSONObject
 
-class LEDLight(id: Int, primaryPin: Int, x: Int, y: Int): HardwareOutput(id, primaryPin, x, y) {
-
-    constructor(json: JSONObject): this(json.getInt("id"), json.getInt("pin"), json.getInt("x"), json.getInt("y"))
+class LEDLight(json: JSONObject? = null, id: Int = -1): HardwareOutput(json, id) {
 
     companion object {
         const val type = "led"

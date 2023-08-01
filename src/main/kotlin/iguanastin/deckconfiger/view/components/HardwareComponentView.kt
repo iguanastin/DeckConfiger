@@ -12,14 +12,10 @@ import tornadofx.*
 abstract class HardwareComponentView(component: HardwareComponent) : BorderPane() {
 
     val componentProperty = SimpleObjectProperty(component)
-    var component: HardwareComponent
-        get() = componentProperty.get()
-        set(value) = componentProperty.set(value)
+    var component by componentProperty
 
     val draggableProperty = SimpleBooleanProperty(false)
-    var draggable: Boolean
-        get() = draggableProperty.get()
-        set(value) = draggableProperty.set(value)
+    var draggable by draggableProperty
 
     private var dragOffsetX: Double = 0.0
     private var dragOffsetY: Double = 0.0
@@ -30,6 +26,10 @@ abstract class HardwareComponentView(component: HardwareComponent) : BorderPane(
         draggableProperty.addListener { _, _, new ->
             if (new) addClass(Styles.draggable)
             else removeClass(Styles.draggable)
+        }
+
+        top = label {
+            textProperty().bind(component.nameProperty)
         }
 
         isPickOnBounds = false

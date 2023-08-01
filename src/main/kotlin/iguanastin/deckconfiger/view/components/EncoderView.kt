@@ -9,7 +9,6 @@ class EncoderView(encoder: Encoder) : HardwareComponentView(encoder) {
     private val circle = circle(radius = 25) { fill = Color.DARKGRAY }
 
     init {
-        top = label("Encoder Dial")
         center = circle
 
         // TODO Bind ident left/right

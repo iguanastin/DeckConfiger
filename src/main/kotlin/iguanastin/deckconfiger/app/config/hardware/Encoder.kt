@@ -4,15 +4,13 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-class Encoder(id: Int, primaryPin: Int, x: Int, y: Int, secondaryPin: Int): HardwareInput(id, primaryPin, x, y) {
-
-    constructor(json: JSONObject): this(json.getInt("id"), json.getInt("pin"), json.getInt("x"), json.getInt("y"), json.getInt("pin2"))
+class Encoder(json: JSONObject? = null, id: Int = -1): HardwareInput(json, id) {
 
     companion object {
         const val type = "encoder"
     }
 
-    val secondaryPinProperty = SimpleIntegerProperty(secondaryPin)
+    val secondaryPinProperty = SimpleIntegerProperty()
     var secondaryPin: Int
         get() = secondaryPinProperty.get()
         set(value) = secondaryPinProperty.set(value)
@@ -23,6 +21,10 @@ class Encoder(id: Int, primaryPin: Int, x: Int, y: Int, secondaryPin: Int): Hard
         set(value) = identLeftProperty.set(value)
 
     override val type: String = Encoder.type
+
+    init {
+        secondaryPin = json?.optInt("pin2") ?: 0
+    }
 
 
     override fun toJSON(): JSONObject {

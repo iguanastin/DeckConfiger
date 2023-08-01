@@ -24,7 +24,6 @@ class LEDLightView(led: LEDLight): HardwareComponentView(led) {
     private val circle = circle(radius = 15) { fill = Color.LIGHTGREEN }
 
     init {
-        top = label("LED Light")
         center = circle
     }
 

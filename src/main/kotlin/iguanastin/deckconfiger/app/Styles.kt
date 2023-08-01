@@ -59,7 +59,7 @@ class Styles : Stylesheet() {
 
         ident {
             backgroundColor += Color.RED
-            effect = DropShadow(5.0, Color.YELLOW).apply { spread = 5.0 }
+            effect = DropShadow(5.0, Color.BLACK)
         }
 
         redBG {
