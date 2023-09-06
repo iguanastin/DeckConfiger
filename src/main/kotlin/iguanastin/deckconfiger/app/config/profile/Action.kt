@@ -13,8 +13,8 @@ abstract class Action {
     }
 
     companion object {
-        const val MOUSE_ACTION = 0
-        const val KEYBOARD_ACTION = 1
+        const val MOUSE_ACTION = 1
+        const val KEYBOARD_ACTION = 2
 
         fun fromJSON(json: JSONObject): Action {
             val type = json.getInt("type")

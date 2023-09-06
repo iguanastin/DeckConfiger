@@ -3,15 +3,9 @@ package iguanastin.deckconfiger.view
 import iguanastin.deckconfiger.app.MyApp
 import iguanastin.deckconfiger.app.addIfNotContains
 import iguanastin.deckconfiger.app.config.DeckConfig
-import iguanastin.deckconfiger.app.config.hardware.Button
-import iguanastin.deckconfiger.app.config.hardware.Encoder
-import iguanastin.deckconfiger.app.config.hardware.HardwareComponent
-import iguanastin.deckconfiger.app.config.hardware.LEDLight
+import iguanastin.deckconfiger.app.config.hardware.*
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
-import iguanastin.deckconfiger.view.components.ButtonView
-import iguanastin.deckconfiger.view.components.EncoderView
-import iguanastin.deckconfiger.view.components.HardwareComponentView
-import iguanastin.deckconfiger.view.components.LEDLightView
+import iguanastin.deckconfiger.view.components.*
 import iguanastin.deckconfiger.view.dialog.*
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -91,6 +85,12 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                                 event.consume()
                                 openNewLEDDialog()
                             }
+                        },
+                        MenuItem("RGB Light").apply {
+                            onAction = EventHandler { event ->
+                                event.consume()
+                                openNewRGBDialog()
+                            }
                         })
                 )
                 contextMenu = null
@@ -121,6 +121,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
     private fun initComponentView(it: HardwareComponent): HardwareComponentView {
         val view = when (it) {
             is LEDLight -> LEDLightView(it)
+            is RGBLight -> RGBLightView(it)
             is Button -> ButtonView(it)
             is Encoder -> EncoderView(it)
             else -> throw IllegalArgumentException("Invalid type: $it")
@@ -137,6 +138,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                     runLater {
                         when (it) {
                             is LEDLight -> app.root.root.add(EditLEDDialog(it, app.deckConfig!!.hardware))
+                            is RGBLight -> app.root.root.add(EditRGBDialog(it, app.deckConfig!!.hardware))
                             is Button -> app.root.root.add(EditButtonDialog(it, app.deckConfig!!.hardware))
                             is Encoder -> app.root.root.add(EditEncoderDialog(it, app.deckConfig!!.hardware))
                             else -> throw IllegalArgumentException("Invalid type: $it")
@@ -164,6 +166,13 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                     event.consume()
                     app.identLED(it.primaryPin)
                     (view as LEDLightView).ident()
+                }
+            }
+            if (it is RGBLight) item("Ident") {
+                onAction = EventHandler { event ->
+                    event.consume()
+                    app.identRGB(it)
+                    (view as RGBLightView).ident()
                 }
             } else {
                 item("No actions") {
@@ -238,6 +247,12 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
 
     fun openNewLEDDialog() {
         app.root.root.add(EditLEDDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
+            deckConfig?.hardware?.components?.addIfNotContains(it)
+        }))
+    }
+
+    fun openNewRGBDialog() {
+        app.root.root.add(EditRGBDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
             deckConfig?.hardware?.components?.addIfNotContains(it)
         }))
     }

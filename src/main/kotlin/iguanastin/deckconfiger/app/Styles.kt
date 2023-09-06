@@ -19,6 +19,8 @@ class Styles : Stylesheet() {
         val dialogPane by cssclass()
         val dialogRoot by cssclass()
         val dialogHeader by cssclass()
+        val encoderArrows by cssclass()
+        val encoderArrowIdent by cssclass()
 
         val baseColor = c("#3b3f42")
     }
@@ -77,6 +79,19 @@ class Styles : Stylesheet() {
             textFill = Color.RED.desaturate().brighter()
         }
         textGreen {
+            textFill = Color.GREEN
+        }
+
+        encoderArrows {
+            fontSize = 2.em
+
+            hover {
+                cursor = Cursor.HAND
+                scaleX = 1.1
+                scaleY = 1.1
+            }
+        }
+        encoderArrows and encoderArrowIdent {
             textFill = Color.GREEN
         }
     }

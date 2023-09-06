@@ -27,7 +27,8 @@ class HardwareDefinition {
         private val componentJsonFactories: Map<String, (JSONObject) -> HardwareComponent> = mapOf(
             Pair(Button.type) { json -> Button(json) },
             Pair(Encoder.type) { json -> Encoder(json) },
-            Pair(LEDLight.type) { json -> LEDLight(json) }
+            Pair(LEDLight.type) { json -> LEDLight(json) },
+            Pair(RGBLight.type) { json -> RGBLight(json) }
         )
 
         fun fromJSON(json: JSONObject): HardwareDefinition {

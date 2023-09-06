@@ -211,6 +211,13 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     editor.openNewLEDDialog()
                 }
             }
+            item("Add RGB") {
+                enableWhen(editor.editHardwareProperty)
+                onAction = EventHandler { event ->
+                    event.consume()
+                    editor.openNewRGBDialog()
+                }
+            }
         }
     }
 

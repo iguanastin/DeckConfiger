@@ -4,6 +4,7 @@ import com.fazecast.jSerialComm.SerialPort
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.hardware.Button
 import iguanastin.deckconfiger.app.config.hardware.Encoder
+import iguanastin.deckconfiger.app.config.hardware.RGBLight
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.app.serial.SerialCommunicator
 import iguanastin.deckconfiger.app.serial.SerialMessage
@@ -97,6 +98,34 @@ class MyApp : App(MainView::class, Styles::class) {
         serial.sendMessage(SerialMessage.Type.IDENT_LED, bytes)
     }
 
+    fun identRGB(led: RGBLight) {
+        val r = led.primaryPin
+        val g = led.gPin
+        val b = led.bPin
+
+        if (r < 0 || r > 255) throw IllegalArgumentException("Pin number outside of range: $r")
+        if (g < 0 || g > 255) throw IllegalArgumentException("Pin number outside of range: $g")
+        if (b < 0 || b > 255) throw IllegalArgumentException("Pin number outside of range: $b")
+
+        val bytes = ByteArray(12)
+        bytes[0] = (r.toLong() and 0xff000000 shr 24).toByte()
+        bytes[1] = (r.toLong() and 0x00ff0000 shr 16).toByte()
+        bytes[2] = (r.toLong() and 0x0000ff00 shr 8).toByte()
+        bytes[3] = (r.toLong() and 0x000000ff).toByte()
+
+        bytes[4] = (g.toLong() and 0xff000000 shr 24).toByte()
+        bytes[5] = (g.toLong() and 0x00ff0000 shr 16).toByte()
+        bytes[6] = (g.toLong() and 0x0000ff00 shr 8).toByte()
+        bytes[7] = (g.toLong() and 0x000000ff).toByte()
+
+        bytes[8] = (b.toLong() and 0xff000000 shr 24).toByte()
+        bytes[9] = (b.toLong() and 0x00ff0000 shr 16).toByte()
+        bytes[10] = (b.toLong() and 0x0000ff00 shr 8).toByte()
+        bytes[11] = (b.toLong() and 0x000000ff).toByte()
+
+        serial.sendMessage(SerialMessage.Type.IDENT_RGB, bytes)
+    }
+
     private fun handleSerialIdentButton(msg: SerialMessage): SerialMessage {
         val pin = ByteBuffer.wrap(msg.bytes).int
         val button = deckConfig?.hardware?.components?.singleOrNull { it.primaryPin == pin && it is Button }
@@ -112,8 +141,8 @@ class MyApp : App(MainView::class, Styles::class) {
         val encoder =
             deckConfig?.hardware?.components?.singleOrNull { it is Encoder && (it.primaryPin == pin || it.secondaryPin == pin) }
         encoder?.apply {
-            ident = true
             (this as Encoder).identLeft = primaryPin == pin
+            ident = true
         }
         Timeline(KeyFrame(Duration.seconds(3.0), {
             encoder?.ident = false

@@ -16,7 +16,8 @@ class SerialMessage(val type: Type, val id: Int, val bytes: ByteArray? = null) {
         REQUEST_RESET,
         IDENT_LED,
         IDENT_ENCODER,
-        IDENT_BUTTON
+        IDENT_BUTTON,
+        IDENT_RGB
     }
 
     fun bytesToString(charset: Charset): String? = bytes?.toString(charset)

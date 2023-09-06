@@ -11,23 +11,17 @@ class Button(json: JSONObject? = null, id: Int = -1) : HardwareInput(json, id) {
         const val defaultDetect = 0
     }
 
-    val detectPressProperty = SimpleIntegerProperty(defaultDetect)
+    val detectPressProperty = SimpleIntegerProperty(json?.optInt("detect") ?: defaultDetect)
     var detectPress: Int
         get() = detectPressProperty.get()
         set(value) = detectPressProperty.set(value)
 
-    val debounceProperty = SimpleIntegerProperty(defaultDebounce)
+    val debounceProperty = SimpleIntegerProperty(json?.optInt("debounce") ?: defaultDebounce)
     var debounceInterval: Int
         get() = debounceProperty.get()
         set(value) = debounceProperty.set(value)
 
     override val type: String = Button.type
-
-
-    init {
-        detectPress = json?.optInt("detect") ?: defaultDetect
-        debounceInterval = json?.optInt("debounce") ?: defaultDebounce
-    }
 
 
     override fun toJSON(): JSONObject {

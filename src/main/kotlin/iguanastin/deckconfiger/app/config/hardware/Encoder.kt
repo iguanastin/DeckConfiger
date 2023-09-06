@@ -10,7 +10,7 @@ class Encoder(json: JSONObject? = null, id: Int = -1): HardwareInput(json, id) {
         const val type = "encoder"
     }
 
-    val secondaryPinProperty = SimpleIntegerProperty()
+    val secondaryPinProperty = SimpleIntegerProperty(json?.optInt("pin2") ?: -1)
     var secondaryPin: Int
         get() = secondaryPinProperty.get()
         set(value) = secondaryPinProperty.set(value)
@@ -21,10 +21,6 @@ class Encoder(json: JSONObject? = null, id: Int = -1): HardwareInput(json, id) {
         set(value) = identLeftProperty.set(value)
 
     override val type: String = Encoder.type
-
-    init {
-        secondaryPin = json?.optInt("pin2") ?: 0
-    }
 
 
     override fun toJSON(): JSONObject {
