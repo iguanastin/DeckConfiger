@@ -94,7 +94,11 @@ class MyApp : App(MainView::class, Styles::class) {
 
     fun identLED(pin: Int) {
         if (pin < 0 || pin > 255) throw IllegalArgumentException("Pin number outside of range: $pin")
-        val bytes = pin.toString().toByteArray(Charsets.US_ASCII)
+        val bytes = ByteArray(4)
+        bytes[0] = (pin.toLong() and 0xff000000 shr 24).toByte()
+        bytes[1] = (pin.toLong() and 0x00ff0000 shr 16).toByte()
+        bytes[2] = (pin.toLong() and 0x0000ff00 shr 8).toByte()
+        bytes[3] = (pin.toLong() and 0x000000ff).toByte()
         serial.sendMessage(SerialMessage.Type.IDENT_LED, bytes)
     }
 

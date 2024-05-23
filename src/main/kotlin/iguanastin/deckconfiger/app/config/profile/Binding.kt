@@ -14,7 +14,7 @@ class Binding(hwID: Int) {
     var action1 by action1Property
 
     val action2Property = SimpleObjectProperty<Action?>()
-    var action2 by action1Property
+    var action2 by action2Property
 
 
     fun toJSON(): JSONObject {

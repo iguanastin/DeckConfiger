@@ -78,7 +78,7 @@ class EditRGBDialog(
                 rField = textfield(led?.r?.toString()) {
                     promptText = "0-256"
                     textFormatter = TextFormatter<String> {
-                        if (it.controlNewText.matches("[0-9]*".toRegex()) && (it.controlNewText.toIntOrNull() == null || it.controlNewText.toInt() in 0 until 256)) it else null
+                        if (it.controlNewText.matches("[0-9]*".toRegex()) && (it.controlNewText.toIntOrNull() == null || it.controlNewText.toInt() in 0 until 257)) it else null
                     }
                     onActionConsuming { gField.requestFocus() }
                 }
@@ -89,7 +89,7 @@ class EditRGBDialog(
                 gField = textfield(led?.g?.toString()) {
                     promptText = "0-256"
                     textFormatter = TextFormatter<String> {
-                        if (it.controlNewText.matches("[0-9]*".toRegex()) && (it.controlNewText.toIntOrNull() == null || it.controlNewText.toInt() in 0 until 256)) it else null
+                        if (it.controlNewText.matches("[0-9]*".toRegex()) && (it.controlNewText.toIntOrNull() == null || it.controlNewText.toInt() in 0 until 257)) it else null
                     }
                     onActionConsuming { bField.requestFocus() }
                 }
@@ -100,7 +100,7 @@ class EditRGBDialog(
                 bField = textfield(led?.b?.toString()) {
                     promptText = "0-256"
                     textFormatter = TextFormatter<String> {
-                        if (it.controlNewText.matches("[0-9]*".toRegex()) && (it.controlNewText.toIntOrNull() == null || it.controlNewText.toInt() in 0 until 256)) it else null
+                        if (it.controlNewText.matches("[0-9]*".toRegex()) && (it.controlNewText.toIntOrNull() == null || it.controlNewText.toInt() in 0 until 257)) it else null
                     }
                     onActionConsuming { acceptButton.fire() }
                 }
