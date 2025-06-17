@@ -190,3 +190,7 @@ class MyApp : App(MainView::class, Styles::class) {
     }
 
 }
+
+fun main(vararg args: String) {
+    launch<MyApp>(*args)
+}
