@@ -5,10 +5,14 @@ import org.json.JSONObject
 
 class Button(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, id) {
 
-    companion object {
+    companion object : ComponentCompanion() {
         const val type = "button"
-        const val defaultDebounce = 5
-        const val defaultDetect = 0
+        private const val defaultDebounce = 5
+        private const val defaultDetect = 0
+
+        override fun fromJSON(j: JSONObject): HardwareComponent {
+            return Button(j)
+        }
     }
 
     val detectPressProperty = SimpleIntegerProperty(json?.optInt("detect") ?: defaultDetect)

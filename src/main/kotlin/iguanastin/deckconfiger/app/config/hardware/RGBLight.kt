@@ -5,8 +5,12 @@ import org.json.JSONObject
 
 class RGBLight(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, id) {
 
-    companion object {
+    companion object : ComponentCompanion() {
         const val type = "rgbled"
+
+        override fun fromJSON(j: JSONObject): HardwareComponent {
+            return RGBLight(j)
+        }
     }
 
     val gPinProperty = SimpleIntegerProperty(json?.optInt("gpin") ?: -1)

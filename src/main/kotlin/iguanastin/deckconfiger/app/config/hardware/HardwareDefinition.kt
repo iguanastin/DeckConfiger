@@ -24,17 +24,10 @@ class HardwareDefinition {
     companion object {
         private const val jsonComponentsName = "components"
 
-        private val componentJsonFactories: Map<String, (JSONObject) -> HardwareComponent> = mapOf(
-            Pair(Button.type) { json -> Button(json) },
-            Pair(Encoder.type) { json -> Encoder(json) },
-            Pair(LEDLight.type) { json -> LEDLight(json) },
-            Pair(RGBLight.type) { json -> RGBLight(json) }
-        )
-
         fun fromJSON(json: JSONObject): HardwareDefinition {
             return HardwareDefinition().apply {
                 json.optJSONArray(jsonComponentsName)?.forEach {
-                    components.add(componentJsonFactories[(it as JSONObject).getString("type")]?.invoke(it) ?: return@forEach)
+                    components.add(HardwareComponent.fromJSON(it as JSONObject))
                 }
             }
         }

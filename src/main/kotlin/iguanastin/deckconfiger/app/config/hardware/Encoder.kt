@@ -6,10 +6,6 @@ import org.json.JSONObject
 
 class Encoder(json: JSONObject? = null, id: Int = -1): HardwareComponent(json, id) {
 
-    companion object {
-        const val type = "encoder"
-    }
-
     val secondaryPinProperty = SimpleIntegerProperty(json?.optInt("pin2") ?: -1)
     var secondaryPin: Int
         get() = secondaryPinProperty.get()
@@ -21,6 +17,14 @@ class Encoder(json: JSONObject? = null, id: Int = -1): HardwareComponent(json, i
         set(value) = identLeftProperty.set(value)
 
     override val type: String = Encoder.type
+
+    companion object : ComponentCompanion() {
+        const val type = "encoder"
+
+        override fun fromJSON(j: JSONObject): HardwareComponent {
+            return Encoder(j)
+        }
+    }
 
 
     override fun toJSON(): JSONObject {
