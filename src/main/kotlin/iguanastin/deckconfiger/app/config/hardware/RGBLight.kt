@@ -3,7 +3,7 @@ package iguanastin.deckconfiger.app.config.hardware
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-class RGBLight(json: JSONObject? = null, id: Int = -1) : HardwareOutput(json, id) {
+class RGBLight(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, id) {
 
     companion object {
         const val type = "rgbled"

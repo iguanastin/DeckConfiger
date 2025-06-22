@@ -21,16 +21,6 @@ import tornadofx.*
 
 class ConfigEditor(private val app: MyApp) : StackPane() {
 
-    val deckConfigProperty = SimpleObjectProperty<DeckConfig?>()
-    var deckConfig: DeckConfig?
-        get() = deckConfigProperty.get()
-        set(value) = deckConfigProperty.set(value)
-
-    val profileProperty = SimpleObjectProperty<DeckProfile>()
-    var profile: DeckProfile?
-        get() = profileProperty.get()
-        set(value) = profileProperty.set(value)
-
     val editHardwareProperty = SimpleBooleanProperty(false)
     var editHardware: Boolean
         get() = editHardwareProperty.get()
@@ -38,8 +28,8 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
 
 
     init {
-        deckConfigProperty.addListener { _, _, new ->
-            if (new?.profiles?.contains(profile) != true) profile = new?.profiles?.firstOrNull()
+        app.deckConfigProperty.addListener { _, _, new ->
+            if (new?.profiles?.contains(app.profile) != true) app.profile = new?.profiles?.firstOrNull()
         }
 
         // Main content pane
@@ -55,7 +45,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                 center = group {
                     var componentsListener: ListConversionListener<HardwareComponent, Node>? = null
 
-                    deckConfigProperty.addListener { _, oldDeck, newDeck ->
+                    app.deckConfigProperty.addListener { _, oldDeck, newDeck ->
                         oldDeck?.hardware?.components?.removeListener(componentsListener)
                         children.clear()
                         if (newDeck == null) return@addListener
@@ -102,7 +92,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
 
         anchorpane {
             isPickOnBounds = false
-            enableWhen(deckConfigProperty.isNotNull)
+            enableWhen(app.deckConfigProperty.isNotNull)
 
             initProfileControls()
 
@@ -157,7 +147,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                         owner = ownerWindow,
                         title = "Delete?"
                     ) {
-                        deckConfig?.hardware?.components?.remove(it)
+                        app.deckConfig?.hardware?.components?.remove(it)
                     }
                 }
             }
@@ -194,7 +184,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
             // Profile chooser
             choicebox<DeckProfile> {
                 var profilesListener: ListConversionListener<DeckProfile, DeckProfile>? = null
-                deckConfigProperty.addListener { _, old, new ->
+                app.deckConfigProperty.addListener { _, old, new ->
                     old?.profiles?.removeListener(profilesListener)
                     items.clear()
                     if (new == null) return@addListener
@@ -203,13 +193,13 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                     value = items.firstOrNull()
                 }
 
-                valueProperty().bindBidirectional(profileProperty)
+                valueProperty().bindBidirectional(app.profileProperty)
             }
             button("\uD83D\uDD89") {
                 tooltip("Edit Profile")
                 onAction = EventHandler { event ->
                     event.consume()
-                    app.root.root.add(EditProfileDialog(profile))
+                    app.root.root.add(EditProfileDialog(app.profile))
                 }
             }
             button("➕") {
@@ -217,13 +207,13 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                 onAction = EventHandler { event ->
                     event.consume()
                     app.root.root.add(EditProfileDialog(onAccept = {
-                        deckConfig?.profiles?.add(it)
-                        profile = it
+                        app.deckConfig?.profiles?.add(it)
+                        app.profile = it
                     }))
                 }
             }
             button("\uD83D\uDDD1") {
-                deckConfigProperty.addListener { _, _, new ->
+                app.deckConfigProperty.addListener { _, _, new ->
                     if (new != null) enableWhen(new.profiles.sizeProperty.greaterThan(1))
                     else disableProperty().unbind()
                 }
@@ -237,8 +227,8 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                         owner = scene.window,
                         title = "Delete?"
                     ) {
-                        deckConfig?.profiles?.remove(profile)
-                        profile = deckConfig?.profiles?.firstOrNull()
+                        app.deckConfig?.profiles?.remove(app.profile)
+                        app.profile = app.deckConfig?.profiles?.firstOrNull()
                     }
                 }
             }
@@ -247,25 +237,25 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
 
     fun openNewLEDDialog() {
         app.root.root.add(EditLEDDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            deckConfig?.hardware?.components?.addIfNotContains(it)
+            app.deckConfig?.hardware?.components?.addIfNotContains(it)
         }))
     }
 
     fun openNewRGBDialog() {
         app.root.root.add(EditRGBDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            deckConfig?.hardware?.components?.addIfNotContains(it)
+            app.deckConfig?.hardware?.components?.addIfNotContains(it)
         }))
     }
 
     fun openNewEncoderDialog() {
         app.root.root.add(EditEncoderDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            deckConfig?.hardware?.components?.addIfNotContains(it)
+            app.deckConfig?.hardware?.components?.addIfNotContains(it)
         }))
     }
 
     fun openNewButtonDialog() {
         app.root.root.add(EditButtonDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            deckConfig?.hardware?.components?.addIfNotContains(it)
+            app.deckConfig?.hardware?.components?.addIfNotContains(it)
         }))
     }
 

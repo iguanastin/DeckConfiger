@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-class Encoder(json: JSONObject? = null, id: Int = -1): HardwareInput(json, id) {
+class Encoder(json: JSONObject? = null, id: Int = -1): HardwareComponent(json, id) {
 
     companion object {
         const val type = "encoder"

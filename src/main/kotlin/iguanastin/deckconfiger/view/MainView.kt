@@ -19,9 +19,7 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
 
     private val myApp = (app as MyApp)
 
-    private val editor = configeditor(myApp) {
-        deckConfigProperty.bind(myApp.deckConfigProperty)
-    }
+    private val editor = configeditor(myApp)
 
     private val rootPane = topenabledstackpane {
         borderpane {

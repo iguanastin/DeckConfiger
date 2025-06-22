@@ -1,15 +1,15 @@
 package iguanastin.deckconfiger.app.config.profile
 
+import javafx.beans.property.ListProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.ObservableList
 import org.json.JSONArray
 import org.json.JSONObject
 import tornadofx.*
 
 class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
 
-
-    val bindings = observableListOf<Binding>()
 
     val nameProperty = SimpleStringProperty(name)
     var name: String
@@ -31,17 +31,30 @@ class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
         get() = bProperty.get()
         set(value) = bProperty.set(value)
 
+    val bindings = observableListOf<Binding>()
+    val idMap = mutableMapOf<Int, Binding>()
+
+
+    init {
+        bindings.onChange { c ->
+            while (c.next()) {
+                c.removed.forEach { idMap.remove(it.id) }
+                c.addedSubList.forEach {
+                    require(it.id !in idMap)
+                    idMap.put(it.id, it)
+                }
+            }
+        }
+    }
+
 
     fun toJSON(): JSONObject {
         return JSONObject().apply {
-            put("name", name)
-            put("r", r)
-            put("g", g)
-            put("b", b)
-
-            val binds = JSONArray()
-            put("bindings", binds)
-            bindings.forEach { binds.put(it.toJSON()) }
+            put(JSON_NAME, name)
+            put(JSON_R, r)
+            put(JSON_G, g)
+            put(JSON_B, b)
+            put(JSON_BINDINGS, bindings.map { it.toJSON() })
         }
     }
 
@@ -50,9 +63,15 @@ class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
     }
 
     companion object {
+        private const val JSON_R = "r"
+        private const val JSON_G = "g"
+        private const val JSON_B = "b"
+        private const val JSON_NAME = "name"
+        private const val JSON_BINDINGS = "binds"
+
         fun fromJSON(json: JSONObject): DeckProfile {
-            return DeckProfile(json.getString("name"), json.optInt("r"), json.optInt("g"), json.optInt("b")).apply {
-                json.optJSONArray("bindings")?.forEach { bindings.add(Binding.fromJSON(it as JSONObject)) }
+            return DeckProfile(json.getString(JSON_NAME), json.optInt(JSON_R), json.optInt(JSON_G), json.optInt(JSON_B)).apply {
+                json.optJSONArray(JSON_BINDINGS)?.forEach { bindings.add(Binding.fromJSON(it as JSONObject)) }
             }
         }
     }

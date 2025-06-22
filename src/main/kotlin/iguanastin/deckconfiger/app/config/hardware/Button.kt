@@ -3,7 +3,7 @@ package iguanastin.deckconfiger.app.config.hardware
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
-class Button(json: JSONObject? = null, id: Int = -1) : HardwareInput(json, id) {
+class Button(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, id) {
 
     companion object {
         const val type = "button"

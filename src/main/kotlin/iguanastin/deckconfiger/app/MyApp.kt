@@ -33,6 +33,11 @@ class MyApp : App(MainView::class, Styles::class) {
         get() = deckConfigProperty.get()
         set(value) = deckConfigProperty.set(value)
 
+    val profileProperty = SimpleObjectProperty<DeckProfile>()
+    var profile: DeckProfile?
+        get() = profileProperty.get()
+        set(value) = profileProperty.set(value)
+
     val currentFileProperty = SimpleObjectProperty<File?>()
     var currentFile: File?
         get() = currentFileProperty.get()
@@ -154,7 +159,7 @@ class MyApp : App(MainView::class, Styles::class) {
         return SerialMessage(SerialMessage.Type.RESPOND_OK, msg.id)
     }
 
-    private fun handleSerialMessage(msg: SerialMessage) = when (msg.type) {
+    private fun handleSerialMessage(msg: SerialMessage): SerialMessage? = when (msg.type) {
         SerialMessage.Type.REQUEST_IDENTIFY -> SerialMessage(
             SerialMessage.Type.RESPOND_IDENTIFY,
             msg.id,
@@ -172,7 +177,7 @@ class MyApp : App(MainView::class, Styles::class) {
             null
         }
         SerialMessage.Type.RESPOND_OK -> {
-            println("Respond OK (${msg.id})")
+            println("Responded OK (${msg.id})")
             null
         }
         SerialMessage.Type.IDENT_BUTTON -> {
@@ -180,6 +185,26 @@ class MyApp : App(MainView::class, Styles::class) {
         }
         SerialMessage.Type.IDENT_ENCODER -> {
             handleSerialIdentEncoder(msg)
+        }
+        SerialMessage.Type.BUTTON_DOWN -> {
+            // TODO needs real implementation, not just ident
+            val id = msg.bytes!!.readInt(0)
+            val button = deckConfig!!.hardware.components.single { it.id == id }
+            button.ident = true
+            Timeline().apply {
+                keyFrames.add(KeyFrame(Duration.seconds(3.0), { button.ident = false }))
+                playFromStart()
+            }
+            null
+        }
+        SerialMessage.Type.BUTTON_UP -> {
+            null // TODO
+        }
+        SerialMessage.Type.ENCODER_CW -> {
+            null // TODO
+        }
+        SerialMessage.Type.ENCODER_CCW -> {
+            null // TODO
         }
         else -> null
     }
