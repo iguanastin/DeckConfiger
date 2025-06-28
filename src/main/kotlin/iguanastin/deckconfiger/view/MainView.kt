@@ -110,20 +110,17 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
             hiddenWhen(myApp.deckConfigProperty.isNotNull)
             button("Sync from device") {
                 enableWhen(myApp.serial.connectedProperty)
-                onAction = EventHandler { event ->
-                    event.consume()
+                onActionConsuming {
                     myApp.syncFromDevice()
                 }
             }
             button("Import from file") {
-                onAction = EventHandler { event ->
-                    event.consume()
+                onActionConsuming {
                     importFileDialog()
                 }
             }
             button("New blank config") {
-                onAction = EventHandler { event ->
-                    event.consume()
+                onActionConsuming {
                     myApp.createNewConfig()
                 }
             }

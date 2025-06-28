@@ -15,8 +15,7 @@ class SerialConsole(private val serial: SerialCommunicator) : VBox(5.0) {
         padding = insets(5)
         textfield {
             promptText = "Type a message and press enter to send on serial bus"
-            onAction = EventHandler { event ->
-                event.consume()
+            onActionConsuming {
                 runOnUIThread {
                     serial.sendRaw((text + "\n").toByteArray(Charsets.US_ASCII))
                     text = null

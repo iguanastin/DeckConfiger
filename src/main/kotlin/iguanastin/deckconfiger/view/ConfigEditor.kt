@@ -56,26 +56,22 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                         "New Component",
                         null,
                         MenuItem("Button").apply {
-                            onAction = EventHandler { event ->
-                                event.consume()
+                            onActionConsuming {
                                 openNewButtonDialog()
                             }
                         },
                         MenuItem("Encoder").apply {
-                            onAction = EventHandler { event ->
-                                event.consume()
+                            onActionConsuming {
                                 openNewEncoderDialog()
                             }
                         },
                         MenuItem("LED Light").apply {
-                            onAction = EventHandler { event ->
-                                event.consume()
+                            onActionConsuming {
                                 openNewLEDDialog()
                             }
                         },
                         MenuItem("RGB Light").apply {
-                            onAction = EventHandler { event ->
-                                event.consume()
+                            onActionConsuming {
                                 openNewRGBDialog()
                             }
                         })
@@ -105,41 +101,39 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
         }
     }
 
-    private fun initComponentView(it: HardwareComponent): HardwareComponentView {
-        val view = when (it) {
-            is LEDLight -> LEDLightView(it)
-            is RGBLight -> RGBLightView(it)
-            is Button -> ButtonView(it)
-            is Encoder -> EncoderView(it)
-            else -> throw IllegalArgumentException("Invalid type: $it")
+    private fun initComponentView(component: HardwareComponent): HardwareComponentView {
+        val view = when (component) {
+            is LEDLight -> LEDLightView(component)
+            is RGBLight -> RGBLightView(component)
+            is Button -> ButtonView(component)
+            is Encoder -> EncoderView(component)
+            else -> throw IllegalArgumentException("Invalid type: $component")
         }
 
         view.onLeftClick {
-            if (it.id !in app.profile!!.bindingByID) app.profile!!.bindings.add(it.createBinding())
-            app.dialog(BindingDialog(app.profile!!.bindingByID[it.id]!!, app))
+            if (component.id !in app.profile!!.bindingByID) app.profile!!.bindings.add(component.createBinding())
+            app.dialog(BindingDialog(app.profile!!.bindingByID[component.id]!!, app))
         }
 
         view.draggableProperty.bind(editHardwareProperty)
         view.contextmenu {
             item("Edit") {
                 visibleWhen(editHardwareProperty)
-                onAction = EventHandler { event ->
-                    event.consume()
+                onActionConsuming {
                     runLater {
-                        when (it) {
-                            is LEDLight -> editLEDDialog(it)
-                            is RGBLight -> editRGBDialog(it)
-                            is Button -> editButtonDialog(it)
-                            is Encoder -> editEncoderDialog(it)
-                            else -> throw IllegalArgumentException("Invalid type: $it")
+                        when (component) {
+                            is LEDLight -> editLEDDialog(component)
+                            is RGBLight -> editRGBDialog(component)
+                            is Button -> editButtonDialog(component)
+                            is Encoder -> editEncoderDialog(component)
+                            else -> throw IllegalArgumentException("Invalid type: $component")
                         }
                     }
                 }
             }
             item("Delete") {
                 visibleWhen(editHardwareProperty)
-                onAction = EventHandler { event ->
-                    event.consume()
+                onActionConsuming {
                     confirm(
                         "Delete this component?",
                         confirmButton = ButtonType.YES,
@@ -147,21 +141,19 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                         owner = ownerWindow,
                         title = "Delete?"
                     ) {
-                        app.deckConfig?.hardware?.components?.remove(it)
+                        app.deckConfig?.hardware?.components?.remove(component)
                     }
                 }
             }
-            if (it is LEDLight) item("Ident") {
-                onAction = EventHandler { event ->
-                    event.consume()
-                    app.identLED(it.primaryPin)
+            if (component is LEDLight) item("Ident") {
+                onActionConsuming {
+                    app.identLED(component.primaryPin)
                     (view as LEDLightView).ident()
                 }
             }
-            if (it is RGBLight) item("Ident") {
-                onAction = EventHandler { event ->
-                    event.consume()
-                    app.identRGB(it)
+            if (component is RGBLight) item("Ident") {
+                onActionConsuming {
+                    app.identRGB(component)
                     (view as RGBLightView).ident()
                 }
             } else {
@@ -215,8 +207,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                     else disableProperty().unbind()
                 }
                 tooltip("Delete Profile")
-                onAction = EventHandler { event ->
-                    event.consume()
+                onActionConsuming {
                     confirm(
                         "Delete this profile?",
                         confirmButton = ButtonType.YES,
