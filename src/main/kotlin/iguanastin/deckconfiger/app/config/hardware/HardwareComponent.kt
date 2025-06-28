@@ -1,6 +1,7 @@
 package iguanastin.deckconfiger.app.config.hardware
 
 import iguanastin.deckconfiger.app.config.profile.Action
+import iguanastin.deckconfiger.app.config.profile.Binding
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
@@ -73,5 +74,7 @@ abstract class HardwareComponent(json: JSONObject? = null, id: Int = -1) {
             put(JSON_Y, y)
         }
     }
+
+    abstract fun createBinding(): Binding
 
 }

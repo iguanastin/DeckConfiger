@@ -1,5 +1,7 @@
 package iguanastin.deckconfiger.app.config.hardware
 
+import iguanastin.deckconfiger.app.config.profile.Binding
+import iguanastin.deckconfiger.app.config.profile.EncoderBinding
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
@@ -31,6 +33,10 @@ class Encoder(json: JSONObject? = null, id: Int = -1): HardwareComponent(json, i
         return super.toJSON().apply {
             put("pin2", secondaryPin)
         }
+    }
+
+    override fun createBinding(): Binding {
+        return EncoderBinding().apply { id = this@Encoder.id }
     }
 
 }

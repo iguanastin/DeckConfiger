@@ -1,5 +1,6 @@
 package iguanastin.deckconfiger.app.config.hardware
 
+import iguanastin.deckconfiger.app.config.profile.Binding
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
 
@@ -48,6 +49,10 @@ class RGBLight(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json,
             put("g", g)
             put("b", b)
         }
+    }
+
+    override fun createBinding(): Binding {
+        TODO("Not yet implemented")
     }
 
 }

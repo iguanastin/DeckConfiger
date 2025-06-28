@@ -19,7 +19,9 @@ abstract class Action {
         protected val robot: Robot = Robot()
 
         @JvmStatic
-        protected val types = mutableMapOf<String, ActionCompanion>()
+        protected val types = mapOf<String, ActionCompanion>(
+            KeyAction.type.to(KeyAction)
+        )
 
         override fun fromJSON(j: JSONObject): Action {
             return types[j.getString(JSON_TYPE)]!!.fromJSON(j)
@@ -49,11 +51,7 @@ class KeyAction(val awtkey: Int, val actionType: Type) : Action() {
     companion object : ActionCompanion() {
         private const val JSON_ACTIONTYPE = "actiontype"
         private const val JSON_AWTKEY = "awtkey"
-        private const val type: String = "keyaction"
-
-        init {
-            types.put(type, this)
-        }
+        const val type: String = "keyaction"
 
         override fun fromJSON(j: JSONObject): Action {
             return KeyAction(j.getInt(JSON_AWTKEY), Type.valueOf(j.getString(JSON_ACTIONTYPE)))

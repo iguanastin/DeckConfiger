@@ -132,16 +132,10 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
 
     private fun initMenuBar() = menubar {
         menu("File") {
-            item("New blank config") {
-                onAction = EventHandler { event ->
-                    event.consume()
-                    myApp.createNewConfig()
-                }
-            }
+            item("New blank config") { onActionConsuming { myApp.createNewConfig() } }
             item("Sync to Device") {
                 enableWhen(myApp.deckConfigProperty.isNotNull)
-                onAction = EventHandler { event ->
-                    event.consume()
+                onActionConsuming {
                     if (!myApp.syncToDevice()) information(
                         "Failed to sync",
                         "Failed to sync to device",
@@ -149,39 +143,19 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
                     )
                 }
             }
-            item("Sync from Device") {
-                onAction = EventHandler { event ->
-                    event.consume()
-                    myApp.syncFromDevice()
-                }
-            }
+            item("Sync from Device") { onActionConsuming { myApp.syncFromDevice() } }
             item("Export to File") {
                 enableWhen(myApp.deckConfigProperty.isNotNull)
-                onAction = EventHandler { event ->
-                    event.consume()
-                    exportFileDialog()
-                }
+                onActionConsuming { exportFileDialog() }
             }
-            item("Import from File") {
-                onAction = EventHandler { event ->
-                    event.consume()
-                    importFileDialog()
-                }
-            }
-            item("Close") {
+            item("Import from File") { onActionConsuming { importFileDialog() } }
+            item("Close Config") {
                 enableWhen(myApp.deckConfigProperty.isNotNull)
-                onAction = EventHandler { event ->
-                    event.consume()
-                    myApp.deckConfig = null
-                }
+                onActionConsuming { myApp.deckConfig = null }
             }
             separator()
-            item("Exit") {
-                onAction = EventHandler { event ->
-                    event.consume()
-                    Platform.exit()
-                }
-            }
+            item("Close Editor") { onActionConsuming { currentStage?.hide() } }
+            item("Exit") { onActionConsuming { Platform.exit() } }
         }
         menu("Edit") {
             checkmenuitem("Edit Hardware") {
@@ -190,31 +164,19 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
             separator()
             item("Add Button") {
                 enableWhen(editor.editHardwareProperty)
-                onAction = EventHandler { event ->
-                    event.consume()
-                    editor.openNewButtonDialog()
-                }
+                onActionConsuming { editor.openNewButtonDialog() }
             }
             item("Add Encoder") {
                 enableWhen(editor.editHardwareProperty)
-                onAction = EventHandler { event ->
-                    event.consume()
-                    editor.openNewEncoderDialog()
-                }
+                onActionConsuming { editor.openNewEncoderDialog() }
             }
             item("Add LED") {
                 enableWhen(editor.editHardwareProperty)
-                onAction = EventHandler { event ->
-                    event.consume()
-                    editor.openNewLEDDialog()
-                }
+                onActionConsuming { editor.openNewLEDDialog() }
             }
             item("Add RGB") {
                 enableWhen(editor.editHardwareProperty)
-                onAction = EventHandler { event ->
-                    event.consume()
-                    editor.openNewRGBDialog()
-                }
+                onActionConsuming { editor.openNewRGBDialog() }
             }
         }
     }

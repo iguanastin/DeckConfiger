@@ -1,14 +1,11 @@
 package iguanastin.deckconfiger.view
 
 import iguanastin.deckconfiger.app.MyApp
-import iguanastin.deckconfiger.app.addIfNotContains
-import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.hardware.*
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.view.components.*
 import iguanastin.deckconfiger.view.dialog.*
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
 import javafx.scene.Node
 import javafx.scene.control.ButtonType
@@ -17,14 +14,13 @@ import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.StackPane
+import javafx.scene.paint.Color
 import tornadofx.*
 
 class ConfigEditor(private val app: MyApp) : StackPane() {
 
     val editHardwareProperty = SimpleBooleanProperty(false)
-    var editHardware: Boolean
-        get() = editHardwareProperty.get()
-        set(value) = editHardwareProperty.set(value)
+    var editHardware by editHardwareProperty
 
 
     init {
@@ -56,7 +52,8 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
 
                 // Hardware editing contextmenu
                 val cm = ContextMenu(
-                    Menu("New Component",
+                    Menu(
+                        "New Component",
                         null,
                         MenuItem("Button").apply {
                             onAction = EventHandler { event ->
@@ -117,7 +114,10 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
             else -> throw IllegalArgumentException("Invalid type: $it")
         }
 
-        // TODO click to open binding editor
+        view.onLeftClick {
+            if (it.id !in app.profile!!.bindingByID) app.profile!!.bindings.add(it.createBinding())
+            app.dialog(BindingDialog(app.profile!!.bindingByID[it.id]!!, app))
+        }
 
         view.draggableProperty.bind(editHardwareProperty)
         view.contextmenu {
@@ -127,10 +127,10 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
                     event.consume()
                     runLater {
                         when (it) {
-                            is LEDLight -> app.root.root.add(EditLEDDialog(it, app.deckConfig!!.hardware))
-                            is RGBLight -> app.root.root.add(EditRGBDialog(it, app.deckConfig!!.hardware))
-                            is Button -> app.root.root.add(EditButtonDialog(it, app.deckConfig!!.hardware))
-                            is Encoder -> app.root.root.add(EditEncoderDialog(it, app.deckConfig!!.hardware))
+                            is LEDLight -> editLEDDialog(it)
+                            is RGBLight -> editRGBDialog(it)
+                            is Button -> editButtonDialog(it)
+                            is Encoder -> editEncoderDialog(it)
                             else -> throw IllegalArgumentException("Invalid type: $it")
                         }
                     }
@@ -197,19 +197,16 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
             }
             button("\uD83D\uDD89") {
                 tooltip("Edit Profile")
-                onAction = EventHandler { event ->
-                    event.consume()
-                    app.root.root.add(EditProfileDialog(app.profile))
-                }
+                onActionConsuming { editProfileDialog(app.profile) }
             }
             button("➕") {
                 tooltip("New Profile")
-                onAction = EventHandler { event ->
-                    event.consume()
-                    app.root.root.add(EditProfileDialog(onAccept = {
-                        app.deckConfig?.profiles?.add(it)
-                        app.profile = it
-                    }))
+                onActionConsuming {
+                    val profile = DeckProfile("New profile")
+                    editProfileDialog(profile).onAccept = {
+                        app.deckConfig?.profiles?.add(profile)
+                        app.profile = profile
+                    }
                 }
             }
             button("\uD83D\uDDD1") {
@@ -235,28 +232,90 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
         }
     }
 
+    fun editButtonDialog(button: Button): EditDialog {
+        return EditDialog("Edit Button", listOf(
+            EditStringField("Name", button.nameProperty),
+            EditIntField("Pin", button.primaryPinProperty),
+            EditIntField("Debounce", button.debounceProperty),
+            EditChoiceField("Detect", button.detectPressProperty, *Button.Detect.values()),
+        )).also { app.dialog(it) }
+    }
+
+    fun editEncoderDialog(enc: Encoder): EditDialog {
+        return EditDialog("Edit Encoder", listOf(
+            EditStringField("Name", enc.nameProperty),
+            EditIntField("Pin 1", enc.primaryPinProperty),
+            EditIntField("Pin 2", enc.secondaryPinProperty)
+        )).also { app.dialog(it) }
+    }
+
+    fun editLEDDialog(led: LEDLight): EditDialog {
+        return EditDialog("Edit LED", listOf(
+            EditStringField("Name", led.nameProperty),
+            EditIntField("Pin", led.primaryPinProperty)
+        )).also { app.dialog(it) }
+    }
+
+    fun editRGBDialog(led: RGBLight): EditDialog {
+        return EditDialog("Edit RGB LED", listOf(
+            EditStringField("Name", led.nameProperty),
+            EditIntField("R Pin", led.primaryPinProperty),
+            EditIntField("G Pin", led.gPinProperty),
+            EditIntField("B Pin", led.bPinProperty),
+            EditIntField("R", led.rProperty, min = 0, max = 255),
+            EditIntField("G", led.gProperty, min = 0, max = 255),
+            EditIntField("B", led.bProperty, min = 0, max = 255),
+        )).also { app.dialog(it) }
+    }
+
+    fun editProfileDialog(profile: DeckProfile): EditDialog {
+        val colorProp = objectProperty(Color.color(
+            profile.r / 255.0,
+            profile.g / 255.0,
+            profile.b / 255.0
+        ))
+        return EditDialog("Edit Profile", listOf(
+            EditStringField("Name", profile.nameProperty),
+            EditColorField("Color", colorProp)
+        )).apply {
+            acceptListeners.add {
+                profile.r = (colorProp.value.red * 255).toInt()
+                profile.g = (colorProp.value.green * 255).toInt()
+                profile.b = (colorProp.value.blue * 255).toInt()
+            }
+        }.also { app.dialog(it) }
+    }
+
     fun openNewLEDDialog() {
-        app.root.root.add(EditLEDDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            app.deckConfig?.hardware?.components?.addIfNotContains(it)
-        }))
+        val new = LEDLight()
+        editLEDDialog(new).onAccept = {
+            new.id = app.deckConfig!!.hardware.getNextID()
+            app.deckConfig!!.hardware.components.add(new)
+        }
     }
 
     fun openNewRGBDialog() {
-        app.root.root.add(EditRGBDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            app.deckConfig?.hardware?.components?.addIfNotContains(it)
-        }))
+        val new = RGBLight()
+        editRGBDialog(new).onAccept = {
+            new.id = app.deckConfig!!.hardware.getNextID()
+            app.deckConfig!!.hardware.components.add(new)
+        }
     }
 
     fun openNewEncoderDialog() {
-        app.root.root.add(EditEncoderDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            app.deckConfig?.hardware?.components?.addIfNotContains(it)
-        }))
+        val new = Encoder()
+        editEncoderDialog(new).onAccept = {
+            new.id = app.deckConfig!!.hardware.getNextID()
+            app.deckConfig!!.hardware.components.add(new)
+        }
     }
 
     fun openNewButtonDialog() {
-        app.root.root.add(EditButtonDialog(null, app.deckConfig?.hardware ?: return, onAccept = {
-            app.deckConfig?.hardware?.components?.addIfNotContains(it)
-        }))
+        val new = Button()
+        editButtonDialog(new).onAccept = {
+            new.id = app.deckConfig!!.hardware.getNextID()
+            app.deckConfig!!.hardware.components.add(new)
+        }
     }
 
 }

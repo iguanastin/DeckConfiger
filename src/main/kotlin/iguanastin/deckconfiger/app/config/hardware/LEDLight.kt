@@ -1,5 +1,6 @@
 package iguanastin.deckconfiger.app.config.hardware
 
+import iguanastin.deckconfiger.app.config.profile.Binding
 import org.json.JSONObject
 
 class LEDLight(json: JSONObject? = null, id: Int = -1): HardwareComponent(json, id) {
@@ -13,5 +14,9 @@ class LEDLight(json: JSONObject? = null, id: Int = -1): HardwareComponent(json, 
     }
 
     override val type: String = LEDLight.type
+
+    override fun createBinding(): Binding {
+        TODO("Not yet implemented")
+    }
 
 }

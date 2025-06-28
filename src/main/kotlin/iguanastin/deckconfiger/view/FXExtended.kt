@@ -9,9 +9,11 @@ import javafx.event.ActionEvent
 import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.event.EventTarget
+import javafx.scene.Node
 import javafx.scene.control.ButtonBase
 import javafx.scene.control.MenuItem
 import javafx.scene.control.TextField
+import javafx.scene.input.MouseEvent
 import tornadofx.*
 
 
@@ -53,4 +55,8 @@ fun TextField.onActionConsuming(op: (ActionEvent) -> Unit) {
 
 fun MenuItem.onActionConsuming(op: (ActionEvent) -> Unit) {
     onAction = eventHandlerConsuming(op)
+}
+
+fun Node.onClick(consuming: Boolean = false, op: (MouseEvent) -> Unit) {
+    addEventHandler(MouseEvent.MOUSE_CLICKED, if (consuming) eventHandlerConsuming(op) else EventHandler(op))
 }

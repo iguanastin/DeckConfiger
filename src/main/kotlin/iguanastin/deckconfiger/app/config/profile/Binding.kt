@@ -1,55 +1,65 @@
 package iguanastin.deckconfiger.app.config.profile
 
 import org.json.JSONObject
+import tornadofx.*
 
 abstract class BindingCompanion {
     abstract fun fromJSON(j: JSONObject): Binding
 }
 
-abstract class Binding(val id: Int) {
+abstract class Binding(id: Int = -1) {
 
-    protected abstract val type: String
+    val idProperty = intProperty(id)
+    var id by idProperty
+
+    val nameProperty = stringProperty("Unnamed")
+    var name by nameProperty
+
+    abstract val type: String
 
     companion object : BindingCompanion() {
+        @JvmStatic
+        protected val JSON_NAME = "name"
         private const val JSON_TYPE = "type"
-        const val JSON_ID = "id"
 
         @JvmStatic
-        protected val types = mutableMapOf<String, BindingCompanion>()
+        protected val JSON_ID = "id"
 
-        override fun fromJSON(j: JSONObject): Binding {
-            return types[j.getString(JSON_TYPE)]!!.fromJSON(j)
-        }
+        @JvmStatic
+        protected val types = mapOf<String, BindingCompanion>(
+            EncoderBinding.type.to(EncoderBinding),
+            ButtonBinding.type.to(ButtonBinding),
+        )
+
+        override fun fromJSON(j: JSONObject): Binding = types[j.getString(JSON_TYPE)]!!.fromJSON(j)
     }
 
     open fun toJSON(): JSONObject {
         return JSONObject().apply {
             put(JSON_ID, id)
             put(JSON_TYPE, type)
+            put(JSON_NAME, name)
         }
+    }
+
+    open fun fromJSON(j: JSONObject): Binding {
+        id = j.getInt(JSON_ID)
+        name = j.getString(JSON_NAME)
+        return this
     }
 
 }
 
-class EncoderBinding(id: Int, var onCW: Action? = null, var onCCW: Action? = null) : Binding(id) {
+class EncoderBinding(var onCW: Action? = null, var onCCW: Action? = null) : Binding() {
 
     override val type: String = EncoderBinding.type
 
     companion object : BindingCompanion() {
-        private const val type = "encoderbinding"
+        const val type = "encoder"
         private const val JSON_CW = "cw"
         private const val JSON_CCW = "ccw"
 
-        init {
-            types.put(type, this)
-        }
-
-        override fun fromJSON(j: JSONObject): Binding {
-            return EncoderBinding(
-                j.getInt(JSON_ID),
-                j.optJSONObject(JSON_CW)?.let { Action.fromJSON(it) },
-                j.optJSONObject(JSON_CCW)?.let { Action.fromJSON(it) })
-        }
+        override fun fromJSON(j: JSONObject): Binding = EncoderBinding().fromJSON(j)
     }
 
     fun cw() {
@@ -67,27 +77,25 @@ class EncoderBinding(id: Int, var onCW: Action? = null, var onCCW: Action? = nul
         }
     }
 
+    override fun fromJSON(j: JSONObject): Binding {
+        onCW = j.optJSONObject(JSON_CW)?.let { Action.fromJSON(it) }
+        onCCW = j.optJSONObject(JSON_CCW)?.let { Action.fromJSON(it) }
+
+        return super.fromJSON(j)
+    }
+
 }
 
-class ButtonBinding(id: Int, var onPress: Action? = null, var onRelease: Action? = null) : Binding(id) {
+class ButtonBinding(var onPress: Action? = null, var onRelease: Action? = null) : Binding() {
 
     override val type: String = ButtonBinding.type
 
     companion object : BindingCompanion() {
-        private const val type = "buttonbinding"
+        const val type = "button"
         private const val JSON_PRESS = "press"
         private const val JSON_RELEASE = "release"
 
-        init {
-            types.put(type, this)
-        }
-
-        override fun fromJSON(j: JSONObject): Binding {
-            return ButtonBinding(
-                j.getInt(JSON_ID),
-                j.optJSONObject(JSON_PRESS)?.let { Action.fromJSON(it) },
-                j.optJSONObject(JSON_RELEASE)?.let { Action.fromJSON(it) })
-        }
+        override fun fromJSON(j: JSONObject): Binding = ButtonBinding().fromJSON(j)
     }
 
     fun press() {
@@ -103,6 +111,13 @@ class ButtonBinding(id: Int, var onPress: Action? = null, var onRelease: Action?
             onPress?.also { put(JSON_PRESS, it.toJSON()) }
             onRelease?.also { put(JSON_RELEASE, it.toJSON()) }
         }
+    }
+
+    override fun fromJSON(j: JSONObject): Binding {
+        onPress = j.optJSONObject(JSON_PRESS)?.let { Action.fromJSON(it) }
+        onRelease = j.optJSONObject(JSON_RELEASE)?.let { Action.fromJSON(it) }
+
+        return super.fromJSON(j)
     }
 
 }

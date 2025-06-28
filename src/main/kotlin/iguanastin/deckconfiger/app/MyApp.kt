@@ -4,22 +4,36 @@ import com.fazecast.jSerialComm.SerialPort
 import iguanastin.deckconfiger.app.config.DeckConfig
 import iguanastin.deckconfiger.app.config.hardware.Button
 import iguanastin.deckconfiger.app.config.hardware.Encoder
+import iguanastin.deckconfiger.app.config.hardware.LEDLight
 import iguanastin.deckconfiger.app.config.hardware.RGBLight
+import iguanastin.deckconfiger.app.config.profile.ButtonBinding
 import iguanastin.deckconfiger.app.config.profile.DeckProfile
+import iguanastin.deckconfiger.app.config.profile.EncoderBinding
 import iguanastin.deckconfiger.app.serial.SerialCommunicator
 import iguanastin.deckconfiger.app.serial.SerialMessage
 import iguanastin.deckconfiger.view.MainView
+import iguanastin.deckconfiger.view.dialog.EditChoiceField
+import iguanastin.deckconfiger.view.dialog.EditDialog
+import iguanastin.deckconfiger.view.dialog.EditIntField
+import iguanastin.deckconfiger.view.dialog.EditStringField
+import iguanastin.deckconfiger.view.dialog.StackDialog
 import iguanastin.deckconfiger.view.runOnUIThread
-import javafx.animation.KeyFrame
-import javafx.animation.Timeline
+import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
+import javafx.event.EventHandler
+import javafx.stage.Popup
 import javafx.stage.Stage
-import javafx.util.Duration
 import org.json.JSONObject
 import tornadofx.*
+import java.awt.PopupMenu
+import java.awt.Toolkit
+import java.awt.TrayIcon
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
+import java.awt.image.BufferedImage
 import java.io.File
-import java.nio.ByteBuffer
 import java.nio.file.Files
+import javax.imageio.ImageIO
 
 class MyApp : App(MainView::class, Styles::class) {
 
@@ -29,19 +43,13 @@ class MyApp : App(MainView::class, Styles::class) {
 
 
     val deckConfigProperty = SimpleObjectProperty<DeckConfig?>()
-    var deckConfig: DeckConfig?
-        get() = deckConfigProperty.get()
-        set(value) = deckConfigProperty.set(value)
+    var deckConfig by deckConfigProperty
 
     val profileProperty = SimpleObjectProperty<DeckProfile>()
-    var profile: DeckProfile?
-        get() = profileProperty.get()
-        set(value) = profileProperty.set(value)
+    var profile by profileProperty
 
     val currentFileProperty = SimpleObjectProperty<File?>()
-    var currentFile: File?
-        get() = currentFileProperty.get()
-        set(value) = currentFileProperty.set(value)
+    var currentFile by currentFileProperty
 
     val serial =
         SerialCommunicator(SerialPort.getCommPorts().single { it.portDescription == "Serial/Keyboard/Mouse/Joystick" })
@@ -62,6 +70,34 @@ class MyApp : App(MainView::class, Styles::class) {
 
         stage.width = 800.0
         stage.height = 600.0
+
+        initTrayIcon(stage)
+
+        stage.onCloseRequest = EventHandler {
+            it.consume()
+            stage.hide()
+        }
+    }
+
+    private fun initTrayIcon(stage: Stage) {
+        fun show() {
+            runOnUIThread {
+                stage.show()
+                stage.isIconified = false
+                stage.requestFocus()
+            }
+        }
+        trayicon(ImageIO.read(javaClass.getResource("/imgs/img.png")), "DeckConfiger") {
+            addActionListener { show() }
+            menu("??????") {
+                item("Open") { setOnAction { show() } }
+                item("Exit") { setOnAction { runOnUIThread { Platform.exit() } } }
+            }
+        }
+    }
+
+    fun dialog(d: StackDialog) {
+        root.root.add(d)
     }
 
     fun loadConfigFromFile(file: File) {
@@ -135,78 +171,33 @@ class MyApp : App(MainView::class, Styles::class) {
         serial.sendMessage(SerialMessage.Type.IDENT_RGB, bytes)
     }
 
-    private fun handleSerialIdentButton(msg: SerialMessage): SerialMessage {
-        val pin = ByteBuffer.wrap(msg.bytes).int
-        val button = deckConfig?.hardware?.components?.singleOrNull { it.primaryPin == pin && it is Button }
-        button?.ident = true
-        Timeline(KeyFrame(Duration.seconds(3.0), {
-            button?.ident = false
-        })).play()
-        return SerialMessage(SerialMessage.Type.RESPOND_OK, msg.id)
-    }
-
-    private fun handleSerialIdentEncoder(msg: SerialMessage): SerialMessage {
-        val pin = ByteBuffer.wrap(msg.bytes).int
-        val encoder =
-            deckConfig?.hardware?.components?.singleOrNull { it is Encoder && (it.primaryPin == pin || it.secondaryPin == pin) }
-        encoder?.apply {
-            (this as Encoder).identLeft = primaryPin == pin
-            ident = true
-        }
-        Timeline(KeyFrame(Duration.seconds(3.0), {
-            encoder?.ident = false
-        })).play()
-        return SerialMessage(SerialMessage.Type.RESPOND_OK, msg.id)
-    }
-
-    private fun handleSerialMessage(msg: SerialMessage): SerialMessage? = when (msg.type) {
-        SerialMessage.Type.REQUEST_IDENTIFY -> SerialMessage(
-            SerialMessage.Type.RESPOND_IDENTIFY,
-            msg.id,
-            "USBDeck Config Editor ($version): ${System.getProperty("os")}".toByteArray(Charsets.US_ASCII)
-        )
-        SerialMessage.Type.RESPOND_CONFIG -> {
-            val str = msg.bytesToString(Charsets.US_ASCII)
+    private fun handleSerialMessage(msg: SerialMessage): SerialMessage? {
+        if (msg.type == SerialMessage.Type.REQUEST_IDENTIFY) {
+            return SerialMessage(
+                SerialMessage.Type.RESPOND_IDENTIFY,
+                msg.id,
+                "USBDeck Config Editor ($version): ${System.getProperty("os")}".toByteArray(Charsets.US_ASCII)
+            )
+        } else if (msg.type == SerialMessage.Type.RESPOND_CONFIG) {
             runOnUIThread {
+                val str = msg.bytesToString(Charsets.US_ASCII)
                 deckConfig = if (!str.isNullOrBlank()) DeckConfig.fromJSON(JSONObject(str)) else DeckConfig()
             }
-            null
-        }
-        SerialMessage.Type.RESPOND_ERROR -> {
+        } else if (msg.type == SerialMessage.Type.RESPOND_ERROR) {
             println("ERROR RESPONSE (${msg.id}): " + msg.bytesToString(Charsets.US_ASCII))
-            null
-        }
-        SerialMessage.Type.RESPOND_OK -> {
+        } else if (msg.type == SerialMessage.Type.RESPOND_OK) {
             println("Responded OK (${msg.id})")
-            null
+        } else if (msg.type == SerialMessage.Type.BUTTON_DOWN) {
+            (profile?.bindingByID?.getOrDefault(msg.bytes!!.readInt(0), null) as ButtonBinding?)?.press()
+        } else if (msg.type == SerialMessage.Type.BUTTON_UP) {
+            (profile?.bindingByID?.getOrDefault(msg.bytes!!.readInt(0), null) as ButtonBinding?)?.release()
+        } else if (msg.type == SerialMessage.Type.ENCODER_CW) {
+            (profile?.bindingByID?.getOrDefault(msg.bytes!!.readInt(0), null) as EncoderBinding?)?.cw()
+        } else if (msg.type == SerialMessage.Type.ENCODER_CCW) {
+            (profile?.bindingByID?.getOrDefault(msg.bytes!!.readInt(0), null) as EncoderBinding?)?.ccw()
         }
-        SerialMessage.Type.IDENT_BUTTON -> {
-            handleSerialIdentButton(msg)
-        }
-        SerialMessage.Type.IDENT_ENCODER -> {
-            handleSerialIdentEncoder(msg)
-        }
-        SerialMessage.Type.BUTTON_DOWN -> {
-            // TODO needs real implementation, not just ident
-            val id = msg.bytes!!.readInt(0)
-            val button = deckConfig!!.hardware.components.single { it.id == id }
-            button.ident = true
-            Timeline().apply {
-                keyFrames.add(KeyFrame(Duration.seconds(3.0), { button.ident = false }))
-                playFromStart()
-            }
-            null
-        }
-        SerialMessage.Type.BUTTON_UP -> {
-            null // TODO
-        }
-        SerialMessage.Type.ENCODER_CW -> {
-            null // TODO
-        }
-        SerialMessage.Type.ENCODER_CCW -> {
-            null // TODO
-        }
-        else -> null
+
+        return null
     }
 
     override fun stop() {
