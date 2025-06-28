@@ -78,8 +78,8 @@ class EncoderBinding(var onCW: Action? = null, var onCCW: Action? = null) : Bind
     }
 
     override fun fromJSON(j: JSONObject): Binding {
-        onCW = j.optJSONObject(JSON_CW)?.let { Action.fromJSON(it) }
-        onCCW = j.optJSONObject(JSON_CCW)?.let { Action.fromJSON(it) }
+        onCW = j.optJSONObject(JSON_CW)?.let { Action(it) }
+        onCCW = j.optJSONObject(JSON_CCW)?.let { Action(it) }
 
         return super.fromJSON(j)
     }
@@ -114,8 +114,8 @@ class ButtonBinding(var onPress: Action? = null, var onRelease: Action? = null) 
     }
 
     override fun fromJSON(j: JSONObject): Binding {
-        onPress = j.optJSONObject(JSON_PRESS)?.let { Action.fromJSON(it) }
-        onRelease = j.optJSONObject(JSON_RELEASE)?.let { Action.fromJSON(it) }
+        onPress = j.optJSONObject(JSON_PRESS)?.let { Action(it) }
+        onRelease = j.optJSONObject(JSON_RELEASE)?.let { Action(it) }
 
         return super.fromJSON(j)
     }

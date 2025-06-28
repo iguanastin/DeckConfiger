@@ -6,13 +6,12 @@ import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.geometry.Side
 import javafx.scene.control.TabPane.TabDragPolicy
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import tornadofx.*
-import tornadofx.borderpane
-import tornadofx.stackpane
-import tornadofx.tab
-import tornadofx.tabpane
 
 class MainView : View("DeckConfiger ${MyApp.VERSION}") {
 
@@ -130,8 +129,12 @@ class MainView : View("DeckConfiger ${MyApp.VERSION}") {
 
     private fun initMenuBar() = menubar {
         menu("File") {
-            item("New blank config") { onActionConsuming { myApp.createNewConfig() } }
+            item("New blank config") {
+                accelerator = KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN)
+                onActionConsuming { myApp.createNewConfig() }
+            }
             item("Sync to Device") {
+                accelerator = KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN)
                 enableWhen(myApp.deckConfigProperty.isNotNull)
                 onActionConsuming {
                     if (!myApp.syncToDevice()) information(
@@ -141,19 +144,33 @@ class MainView : View("DeckConfiger ${MyApp.VERSION}") {
                     )
                 }
             }
-            item("Sync from Device") { onActionConsuming { myApp.syncFromDevice() } }
+            item("Sync from Device") {
+                accelerator = KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN)
+                onActionConsuming { myApp.syncFromDevice() }
+            }
             item("Export to File") {
+                accelerator = KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN)
                 enableWhen(myApp.deckConfigProperty.isNotNull)
                 onActionConsuming { exportFileDialog() }
             }
-            item("Import from File") { onActionConsuming { importFileDialog() } }
+            item("Import from File") {
+                accelerator = KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN)
+                onActionConsuming { importFileDialog() }
+            }
             item("Close Config") {
+                accelerator = KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN)
                 enableWhen(myApp.deckConfigProperty.isNotNull)
                 onActionConsuming { myApp.deckConfig = null }
             }
             separator()
-            item("Close Editor") { onActionConsuming { currentStage?.hide() } }
-            item("Exit") { onActionConsuming { Platform.exit() } }
+            item("Close Editor") {
+                accelerator = KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN)
+                onActionConsuming { currentStage?.hide() }
+            }
+            item("Exit") {
+                accelerator = KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)
+                onActionConsuming { Platform.exit() }
+            }
         }
         menu("Edit") {
             checkmenuitem("Edit Hardware") {
