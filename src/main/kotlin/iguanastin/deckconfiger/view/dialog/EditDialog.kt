@@ -11,13 +11,13 @@ import tornadofx.*
 class EditDialog(title: String, val fields: List<EditField>, var onAccept: () -> Unit = {}) : StackDialog() {
 
     val titleProperty = stringProperty(title)
-    var title by titleProperty
+    var title: String by titleProperty
 
     val acceptTextProperty = stringProperty("Accept")
-    var acceptText by acceptTextProperty
+    var acceptText: String by acceptTextProperty
 
     val cancelTextProperty = stringProperty("Cancel")
-    var cancelText by cancelTextProperty
+    var cancelText: String by cancelTextProperty
 
     val acceptListeners = observableListOf<() -> Unit>()
 

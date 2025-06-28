@@ -14,7 +14,7 @@ import tornadofx.stackpane
 import tornadofx.tab
 import tornadofx.tabpane
 
-class MainView : View("DeckConfiger ${MyApp.version}") {
+class MainView : View("DeckConfiger ${MyApp.VERSION}") {
 
     companion object {
         private val JSON_FILE_FILTER = FileChooser.ExtensionFilter("JSON files", "*.json")
@@ -52,7 +52,7 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
 
     init {
         myApp.currentFileProperty.addListener { _, _, newFile ->
-            title = "DeckConfiger ${MyApp.version}"
+            title = "DeckConfiger ${MyApp.VERSION}"
             if (newFile != null) title += " - $newFile"
         }
     }

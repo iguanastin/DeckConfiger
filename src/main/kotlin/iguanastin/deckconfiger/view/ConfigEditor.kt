@@ -6,7 +6,6 @@ import iguanastin.deckconfiger.app.config.profile.DeckProfile
 import iguanastin.deckconfiger.view.components.*
 import iguanastin.deckconfiger.view.dialog.*
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.event.EventHandler
 import javafx.scene.Node
 import javafx.scene.control.ButtonType
 import javafx.scene.control.ContextMenu
@@ -189,7 +188,7 @@ class ConfigEditor(private val app: MyApp) : StackPane() {
             }
             button("\uD83D\uDD89") {
                 tooltip("Edit Profile")
-                onActionConsuming { editProfileDialog(app.profile) }
+                onActionConsuming { editProfileDialog(app.profile!!) }
             }
             button("➕") {
                 tooltip("New Profile")

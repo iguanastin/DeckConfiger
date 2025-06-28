@@ -12,7 +12,7 @@ import tornadofx.*
 abstract class HardwareComponentView(component: HardwareComponent) : BorderPane() {
 
     val componentProperty = SimpleObjectProperty(component)
-    var component by componentProperty
+    var component: HardwareComponent by componentProperty
 
     val draggableProperty = SimpleBooleanProperty(false)
     var draggable by draggableProperty

@@ -1,13 +1,11 @@
 package iguanastin.deckconfiger.app.config.hardware
 
-import iguanastin.deckconfiger.app.config.profile.Action
 import iguanastin.deckconfiger.app.config.profile.Binding
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import org.json.JSONObject
-import tornadofx.getValue
-import tornadofx.setValue
+import tornadofx.*
 
 abstract class ComponentCompanion {
     abstract fun fromJSON(j: JSONObject): HardwareComponent
@@ -44,10 +42,10 @@ abstract class HardwareComponent(json: JSONObject? = null, id: Int = -1) {
         private const val JSON_Y = "y"
 
         protected val types = mutableMapOf<String, ComponentCompanion>(
-            Encoder.type.to(Encoder),
-            Button.type.to(Button),
-            LEDLight.type.to(LEDLight),
-            RGBLight.type.to(RGBLight)
+            Encoder.TYPE.to(Encoder),
+            Button.TYPE.to(Button),
+            LEDLight.TYPE.to(LEDLight),
+            RGBLight.TYPE.to(RGBLight)
         )
 
         override fun fromJSON(j: JSONObject): HardwareComponent {

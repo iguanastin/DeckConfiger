@@ -20,7 +20,7 @@ abstract class Action {
 
         @JvmStatic
         protected val types = mapOf<String, ActionCompanion>(
-            KeyAction.type.to(KeyAction)
+            KeyAction.TYPE.to(KeyAction)
         )
 
         override fun fromJSON(j: JSONObject): Action {
@@ -40,7 +40,7 @@ abstract class Action {
 
 class KeyAction(val awtkey: Int, val actionType: Type) : Action() {
 
-    override val type: String = KeyAction.type
+    override val type: String = TYPE
 
     enum class Type {
         PRESS,
@@ -51,7 +51,7 @@ class KeyAction(val awtkey: Int, val actionType: Type) : Action() {
     companion object : ActionCompanion() {
         private const val JSON_ACTIONTYPE = "actiontype"
         private const val JSON_AWTKEY = "awtkey"
-        const val type: String = "keyaction"
+        const val TYPE: String = "keyaction"
 
         override fun fromJSON(j: JSONObject): Action {
             return KeyAction(j.getInt(JSON_AWTKEY), Type.valueOf(j.getString(JSON_ACTIONTYPE)))

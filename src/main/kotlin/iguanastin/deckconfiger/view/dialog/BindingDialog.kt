@@ -12,7 +12,7 @@ import tornadofx.*
 class BindingDialog(val binding: Binding, val app: MyApp): StackDialog() {
 
     companion object {
-        private val twoActionTypes = arrayOf(ButtonBinding.type, EncoderBinding.type)
+        private val twoActionTypes = arrayOf(ButtonBinding.TYPE, EncoderBinding.TYPE)
     }
 
     init {

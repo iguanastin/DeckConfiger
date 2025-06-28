@@ -9,7 +9,7 @@ import tornadofx.setValue
 class RGBLight(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, id) {
 
     companion object : ComponentCompanion() {
-        const val type = "rgbled"
+        const val TYPE = "rgbled"
 
         override fun fromJSON(j: JSONObject): HardwareComponent {
             return RGBLight(j)
@@ -31,7 +31,7 @@ class RGBLight(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json,
     val bProperty = SimpleIntegerProperty(json?.optInt("b") ?: 0)
     var b by bProperty
 
-    override val type: String = RGBLight.type
+    override val type: String = TYPE
 
     override fun toJSON(): JSONObject {
         return super.toJSON().apply {

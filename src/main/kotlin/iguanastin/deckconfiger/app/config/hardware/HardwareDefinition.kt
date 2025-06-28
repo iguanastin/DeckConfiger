@@ -11,10 +11,10 @@ class HardwareDefinition {
     val componentByID: Map<Int, HardwareComponent> = ids
 
     init {
-        components.onChange {
-            while (it.next()) {
-                it.removed.forEach { ids.remove(it.id) }
-                it.addedSubList.forEach { ids.put(it.id, it) }
+        components.onChange { change ->
+            while (change.next()) {
+                change.removed.forEach { ids.remove(it.id) }
+                change.addedSubList.forEach { ids.put(it.id, it) }
             }
         }
     }
@@ -22,7 +22,7 @@ class HardwareDefinition {
     fun toJSON(): JSONObject {
         val json = JSONObject()
 
-        components.forEach { json.append(jsonComponentsName, it.toJSON()) }
+        components.forEach { json.append(JSON_COMPONENTS, it.toJSON()) }
 
         return json
     }
@@ -33,11 +33,11 @@ class HardwareDefinition {
 
 
     companion object {
-        private const val jsonComponentsName = "components"
+        private const val JSON_COMPONENTS = "components"
 
         fun fromJSON(json: JSONObject): HardwareDefinition {
             return HardwareDefinition().apply {
-                json.optJSONArray(jsonComponentsName)?.forEach {
+                json.optJSONArray(JSON_COMPONENTS)?.forEach {
                     components.add(HardwareComponent.fromJSON(it as JSONObject))
                 }
             }

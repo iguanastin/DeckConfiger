@@ -14,9 +14,9 @@ class Button(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, i
     }
 
     companion object : ComponentCompanion() {
-        const val type = "button"
-        private const val defaultDebounce = 5
-        private val defaultDetect = Detect.LOW
+        const val TYPE = "button"
+        private const val DEFAULT_DEBOUNCE = 5
+        private val DEFAULT_DETECT = Detect.LOW
 
         override fun fromJSON(j: JSONObject): HardwareComponent {
             return Button(j)
@@ -25,14 +25,14 @@ class Button(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, i
 
     val detectPressProperty =
         objectProperty<Detect>(
-            if ((json?.optInt("detect") ?: defaultDetect.value) == Detect.LOW.value) Detect.LOW else Detect.HIGH
+            if ((json?.optInt("detect") ?: DEFAULT_DETECT.value) == Detect.LOW.value) Detect.LOW else Detect.HIGH
         )
-    var detectPress by detectPressProperty
+    var detectPress: Detect by detectPressProperty
 
-    val debounceProperty = SimpleIntegerProperty(json?.optInt("debounce") ?: defaultDebounce)
+    val debounceProperty = SimpleIntegerProperty(json?.optInt("debounce") ?: DEFAULT_DEBOUNCE)
     var debounceInterval by debounceProperty
 
-    override val type: String = Button.type
+    override val type: String = TYPE
 
 
     override fun toJSON(): JSONObject {

@@ -13,7 +13,7 @@ abstract class Binding(id: Int = -1) {
     var id by idProperty
 
     val nameProperty = stringProperty("Unnamed")
-    var name by nameProperty
+    var name: String by nameProperty
 
     abstract val type: String
 
@@ -27,8 +27,8 @@ abstract class Binding(id: Int = -1) {
 
         @JvmStatic
         protected val types = mapOf<String, BindingCompanion>(
-            EncoderBinding.type.to(EncoderBinding),
-            ButtonBinding.type.to(ButtonBinding),
+            EncoderBinding.TYPE.to(EncoderBinding),
+            ButtonBinding.TYPE.to(ButtonBinding),
         )
 
         override fun fromJSON(j: JSONObject): Binding = types[j.getString(JSON_TYPE)]!!.fromJSON(j)
@@ -52,10 +52,10 @@ abstract class Binding(id: Int = -1) {
 
 class EncoderBinding(var onCW: Action? = null, var onCCW: Action? = null) : Binding() {
 
-    override val type: String = EncoderBinding.type
+    override val type: String = TYPE
 
     companion object : BindingCompanion() {
-        const val type = "encoder"
+        const val TYPE = "encoder"
         private const val JSON_CW = "cw"
         private const val JSON_CCW = "ccw"
 
@@ -88,10 +88,10 @@ class EncoderBinding(var onCW: Action? = null, var onCCW: Action? = null) : Bind
 
 class ButtonBinding(var onPress: Action? = null, var onRelease: Action? = null) : Binding() {
 
-    override val type: String = ButtonBinding.type
+    override val type: String = TYPE
 
     companion object : BindingCompanion() {
-        const val type = "button"
+        const val TYPE = "button"
         private const val JSON_PRESS = "press"
         private const val JSON_RELEASE = "release"
 

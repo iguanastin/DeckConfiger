@@ -1,7 +1,6 @@
 package iguanastin.deckconfiger.view
 
 import iguanastin.deckconfiger.app.serial.SerialCommunicator
-import javafx.event.EventHandler
 import javafx.scene.control.TextArea
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox

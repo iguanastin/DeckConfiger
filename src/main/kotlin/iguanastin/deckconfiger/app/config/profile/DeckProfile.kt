@@ -9,7 +9,7 @@ class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
 
 
     val nameProperty = SimpleStringProperty(name)
-    var name by nameProperty
+    var name: String by nameProperty
 
     val rProperty = SimpleIntegerProperty(r)
     var r by rProperty

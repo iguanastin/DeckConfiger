@@ -16,10 +16,10 @@ class Encoder(json: JSONObject? = null, id: Int = -1): HardwareComponent(json, i
     val identLeftProperty = SimpleBooleanProperty()
     var identLeft by identLeftProperty
 
-    override val type: String = Encoder.type
+    override val type: String = TYPE
 
     companion object : ComponentCompanion() {
-        const val type = "encoder"
+        const val TYPE = "encoder"
 
         override fun fromJSON(j: JSONObject): HardwareComponent {
             return Encoder(j)
