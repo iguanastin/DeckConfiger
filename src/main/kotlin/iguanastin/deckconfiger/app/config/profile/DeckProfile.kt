@@ -9,24 +9,16 @@ class DeckProfile(name: String, r: Int = 255, g: Int = 255, b: Int = 255) {
 
 
     val nameProperty = SimpleStringProperty(name)
-    var name: String
-        get() = nameProperty.get()
-        set(value) = nameProperty.set(value)
+    var name by nameProperty
 
     val rProperty = SimpleIntegerProperty(r)
-    var r: Int
-        get() = rProperty.get()
-        set(value) = rProperty.set(value)
+    var r by rProperty
 
     val gProperty = SimpleIntegerProperty(g)
-    var g: Int
-        get() = gProperty.get()
-        set(value) = gProperty.set(value)
+    var g by gProperty
 
     val bProperty = SimpleIntegerProperty(b)
-    var b: Int
-        get() = bProperty.get()
-        set(value) = bProperty.set(value)
+    var b by bProperty
 
     val bindings = observableListOf<Binding>()
     private val _idMap = mutableMapOf<Int, Binding>()

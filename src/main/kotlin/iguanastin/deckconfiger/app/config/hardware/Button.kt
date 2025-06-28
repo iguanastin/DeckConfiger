@@ -2,10 +2,9 @@ package iguanastin.deckconfiger.app.config.hardware
 
 import iguanastin.deckconfiger.app.config.profile.Binding
 import iguanastin.deckconfiger.app.config.profile.ButtonBinding
-import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleIntegerProperty
 import org.json.JSONObject
-import tornadofx.objectProperty
+import tornadofx.*
 
 class Button(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, id) {
 
@@ -28,14 +27,10 @@ class Button(json: JSONObject? = null, id: Int = -1) : HardwareComponent(json, i
         objectProperty<Detect>(
             if ((json?.optInt("detect") ?: defaultDetect.value) == Detect.LOW.value) Detect.LOW else Detect.HIGH
         )
-    var detectPress: Detect
-        get() = detectPressProperty.get()
-        set(value) = detectPressProperty.set(value)
+    var detectPress by detectPressProperty
 
     val debounceProperty = SimpleIntegerProperty(json?.optInt("debounce") ?: defaultDebounce)
-    var debounceInterval: Int
-        get() = debounceProperty.get()
-        set(value) = debounceProperty.set(value)
+    var debounceInterval by debounceProperty
 
     override val type: String = Button.type
 

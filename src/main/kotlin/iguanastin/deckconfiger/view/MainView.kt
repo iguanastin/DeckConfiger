@@ -3,31 +3,34 @@ package iguanastin.deckconfiger.view
 import iguanastin.deckconfiger.app.MyApp
 import iguanastin.deckconfiger.app.Styles
 import javafx.application.Platform
-import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.geometry.Side
-import javafx.scene.control.TabPane
+import javafx.scene.control.TabPane.TabDragPolicy
 import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import tornadofx.*
+import tornadofx.borderpane
+import tornadofx.stackpane
+import tornadofx.tab
+import tornadofx.tabpane
 
 class MainView : View("DeckConfiger ${MyApp.version}") {
 
     companion object {
-        val jsonFileFilter = FileChooser.ExtensionFilter("JSON files", "*.json")
+        private val JSON_FILE_FILTER = FileChooser.ExtensionFilter("JSON files", "*.json")
     }
 
     private val myApp = (app as MyApp)
 
     private val editor = configeditor(myApp)
 
-    private val rootPane = topenabledstackpane {
+    override val root = topenabledstackpane {
         borderpane {
-            top = initMenuBar()
+            this.top = initMenuBar()
 
-            center = tabpane {
-                side = Side.BOTTOM
-                tabDragPolicy = TabPane.TabDragPolicy.FIXED
+            this.center = tabpane {
+                this.side = Side.BOTTOM
+                this.tabDragPolicy = TabDragPolicy.FIXED
                 tab("Config") {
                     closableProperty().set(false)
                     stackpane {
@@ -45,8 +48,6 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
             }
         }
     }
-
-    override val root = rootPane
 
 
     init {
@@ -181,7 +182,7 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
     private fun importFileDialog() {
         val files = chooseFile(
             "Import Config",
-            arrayOf(jsonFileFilter),
+            arrayOf(JSON_FILE_FILTER),
             initialDirectory = myApp.currentFile?.parentFile, owner = currentWindow
         )
         if (files.isEmpty()) return
@@ -192,7 +193,7 @@ class MainView : View("DeckConfiger ${MyApp.version}") {
     private fun exportFileDialog() {
         val files = chooseFile(
             "Export Config",
-            arrayOf(jsonFileFilter),
+            arrayOf(JSON_FILE_FILTER),
             initialDirectory = myApp.currentFile?.parentFile, owner = currentWindow, mode = FileChooserMode.Save
         )
         if (files.isEmpty()) return

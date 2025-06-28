@@ -6,7 +6,7 @@
 
     <groupId>com.github.iguanastin</groupId>
     <artifactId>tornadofx-maven-project</artifactId>
-    <version>0.0.1</version>
+    <version>0.1.0</version> <!-- Update version in MyApp.kt as well -->
     <packaging>jar</packaging>
 
     <properties>

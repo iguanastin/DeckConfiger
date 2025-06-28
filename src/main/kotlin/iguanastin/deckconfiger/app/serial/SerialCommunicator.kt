@@ -3,15 +3,14 @@ package iguanastin.deckconfiger.app.serial
 import com.fazecast.jSerialComm.SerialPort
 import iguanastin.deckconfiger.app.readInt
 import javafx.beans.property.SimpleBooleanProperty
+import tornadofx.*
 import java.nio.ByteBuffer
 import kotlin.concurrent.thread
 
 class SerialCommunicator(private val port: SerialPort) {
 
     val connectedProperty = SimpleBooleanProperty(false)
-    var connected: Boolean
-        get() = connectedProperty.get()
-        set(value) = connectedProperty.set(value)
+    var connected by connectedProperty
 
     private var rollingRequestID: Byte = 1
 

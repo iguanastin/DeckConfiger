@@ -38,7 +38,7 @@ import javax.imageio.ImageIO
 class MyApp : App(MainView::class, Styles::class) {
 
     companion object {
-        const val version = "0.0.1"
+        const val version = "0.1.0" // Update version in pom.xml as well
     }
 
 
